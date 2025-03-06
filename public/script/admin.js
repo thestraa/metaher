@@ -1,4 +1,4 @@
-import API_URL from "config.js"
+// import API_URL from "config.js"
 
 // Funkcija za učitavanje takmičara
 function ucitajTakmicare() {

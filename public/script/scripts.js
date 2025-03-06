@@ -1,4 +1,4 @@
-import API_URL from "config.js"
+
 //Navbar
 function toggleMenu() {
   document.querySelector(".nav-links").classList.toggle("active");

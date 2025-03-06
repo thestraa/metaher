@@ -1,4 +1,4 @@
-import API_URL from "config.js"
+// import API_URL from "config.js"
 
 function fetchStats() {
     fetch(API_URL) // Obavezno koristite vašu tačnu URL adresu API-ja
