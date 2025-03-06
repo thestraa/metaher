@@ -1,4 +1,6 @@
-// import API_URL from "config.js"
+const API_URL = window.location.hostname === 'morning-taiga-69885-23caee796dab.herokuapp.com'
+  ? 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari'
+  : 'http://localhost:3000/api/takmicari';
 
 function fetchStats() {
     fetch(API_URL) // Obavezno koristite vašu tačnu URL adresu API-ja
