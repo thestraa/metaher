@@ -2,7 +2,7 @@
 
 // Funkcija za učitavanje takmičara
 function ucitajTakmicare() {
-    fetch(API_URL)
+    fetch('https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari')
         .then(res => res.json())
         .then(data => {
 
