@@ -1,16 +1,24 @@
 const API_URL = 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari';
 
-//Navbar
-function toggleMenu() {
+// Navbar toggle
+window.toggleMenu = function () {
   document.querySelector(".nav-links").classList.toggle("active");
-}
+};
+
+// Zatvori meni kada se klikne na link
+document.querySelectorAll(".nav-links a").forEach(link => {
+  link.addEventListener("click", () => {
+    document.querySelector(".nav-links").classList.remove("active");
+  });
+});
+
+// Dodaj klasu "scrolled" na navbar pri skrolovanju
 window.addEventListener("scroll", function () {
   let navbar = document.querySelector(".navbar");
-  let navlinks = document.querySelector(".navlinks");
   if (window.scrollY > 50) {
-      navbar.classList.add("scrolled");
+    navbar.classList.add("scrolled");
   } else {
-      navbar.classList.remove("scrolled");
+    navbar.classList.remove("scrolled");
   }
 });
 
@@ -74,67 +82,64 @@ window.addEventListener('load', function() {
 
 document.addEventListener("DOMContentLoaded", function() {
   fetch(API_URL)
-      .then(response => response.json())
-      .then(data => {
-          const containerZeleni = document.getElementById("zeleniTim");
-          const containerZuti = document.getElementById("zutiTim");
-         
+    .then(response => response.json())
+    .then(data => {
+      const containerZeleni = document.getElementById("zeleniTim");
+      const containerZuti = document.getElementById("zutiTim");
 
-          // Očisti postojeći sadržaj
-          containerZeleni.innerHTML = "";
-          containerZuti.innerHTML = "";
+      // Očisti postojeći sadržaj
+      containerZeleni.innerHTML = "";
+      containerZuti.innerHTML = "";
 
+      if (Array.isArray(data.zeleniTim)) {
+        // Sortiraj po procentu pobeda u opadajućem redosledu
+        data.zeleniTim.sort((a, b) => (b.pobede / b.ukupne_igre) - (a.pobede / a.ukupne_igre));
 
-          if (Array.isArray(data.zeleniTim)) {
-            data.zeleniTim.forEach(takmicar => {
-                const div = document.createElement("div");
-                const uspesnost = takmicar.pobede / takmicar.ukupne_igre * 100;
-        
-                div.classList.add("takmicar", "card");
-                div.innerHTML = `
-                    <img src="${takmicar.slika}" alt="${takmicar.ime} ${takmicar.prezime}">
-                    <h3>${takmicar.ime} ${takmicar.prezime}</h3>
-                    <p>Uspešnost u igrama:</p> 
-                    <p class="uspesnost">${(uspesnost).toFixed(2)}%</p>
-                `;
-        
-                // Selektujte p element sa klasom 'uspesnost' i menjajte boju
-                const uspesnostElement = div.querySelector('.uspesnost');
-                if (uspesnost > 50) {
-                    uspesnostElement.style.color = "green";
-                } else {
-                    uspesnostElement.style.color = "red";
-                }
-        
-                containerZeleni.appendChild(div);
-            });
-        }
+        data.zeleniTim.forEach(takmicar => {
+          const div = document.createElement("div");
+          const uspesnost = (takmicar.pobede / takmicar.ukupne_igre) * 100;
 
-          if (Array.isArray(data.zutiTim)) {
-              data.zutiTim.forEach(takmicar => {
-                  const div = document.createElement("div");
-                  const uspesnost = takmicar.pobede / takmicar.ukupne_igre * 100;
+          div.classList.add("takmicar", "card");
+          div.innerHTML = `
+            <img src="${takmicar.slika}" alt="${takmicar.ime} ${takmicar.prezime}">
+            <h3>${takmicar.ime} ${takmicar.prezime}</h3>
+            <p>Uspešnost u igrama:</p> 
+            <p class="uspesnost">${uspesnost.toFixed(2)}%</p>
+          `;
 
-                  div.classList.add("takmicar", "card");
-                  div.innerHTML = `
-                      <img src="${takmicar.slika}" alt="${takmicar.ime} ${takmicar.prezime}">
-                      <h3>${takmicar.ime} ${takmicar.prezime}</h3>
-                        <p>Uspešnost u igrama:</p> 
-                      <p class="uspesnost">${(uspesnost).toFixed(2)}%</p>
-                  `;
+          // Promena boje uspešnosti
+          const uspesnostElement = div.querySelector('.uspesnost');
+          uspesnostElement.style.color = uspesnost > 50 ? "green" : "red";
 
-                  // Selektujte p element sa klasom 'uspesnost' i menjajte boju
-                  const uspesnostElement = div.querySelector('.uspesnost');
-                  if (uspesnost > 50) {
-                      uspesnostElement.style.color = "green";
-                  } else {
-                      uspesnostElement.style.color = "red";
-                  }
-                  containerZuti.appendChild(div);
-              });
-          }
-      })
-      .catch(error => console.error("Greška pri učitavanju podataka:", error));
+          containerZeleni.appendChild(div);
+        });
+      }
+
+      if (Array.isArray(data.zutiTim)) {
+        // Sortiraj po procentu pobeda u opadajućem redosledu
+        data.zutiTim.sort((a, b) => (b.pobede / b.ukupne_igre) - (a.pobede / a.ukupne_igre));
+
+        data.zutiTim.forEach(takmicar => {
+          const div = document.createElement("div");
+          const uspesnost = (takmicar.pobede / takmicar.ukupne_igre) * 100;
+
+          div.classList.add("takmicar", "card");
+          div.innerHTML = `
+            <img src="${takmicar.slika}" alt="${takmicar.ime} ${takmicar.prezime}">
+            <h3>${takmicar.ime} ${takmicar.prezime}</h3>
+            <p>Uspešnost u igrama:</p> 
+            <p class="uspesnost">${uspesnost.toFixed(2)}%</p>
+          `;
+
+          // Promena boje uspešnosti
+          const uspesnostElement = div.querySelector('.uspesnost');
+          uspesnostElement.style.color = uspesnost > 50 ? "green" : "red";
+
+          containerZuti.appendChild(div);
+        });
+      }
+    })
+    .catch(error => console.error("Greška pri učitavanju podataka:", error));
 });
 
 // Funkcija za kreiranje grafikona

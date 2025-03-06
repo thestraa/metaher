@@ -57,18 +57,18 @@ button:hover {
   top: 0;
   left: 0;
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.14);
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
-  padding: 15px 15px;
   transition: background 0.3s ease-in-out;
   z-index: 1000;
 }
+
 .navbar.scrolled {
   background: rgba(0, 0, 0, 0.8);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  height: 20px;
+  height: 45px;
 }
 .logo {
   color: white;
@@ -76,12 +76,14 @@ button:hover {
   font-weight: 100;
   font-family: "Capture It", sans-serif;
   letter-spacing: 3px;
+  padding: 15px;
 }
 .nav-links {
   list-style: none;
   display: flex;
   gap: 20px;
-  padding: 0;
+  padding: 15px;
+  margin: 0;
   z-index: 999;
 }
 .nav-links li {
@@ -102,6 +104,7 @@ button:hover {
   flex-direction: column;
   gap: 5px;
   cursor: pointer;
+  padding: 15px;
 }
 .hamburger span {
   display: block;
@@ -117,7 +120,7 @@ button:hover {
       position: absolute;
       top: 60px;
       right: 0;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.14);
       width: 100%;
       text-align: center;
       padding: 10px 0;
@@ -127,7 +130,7 @@ button:hover {
     background: rgba(0, 0, 0, 0.8); /* Isti bg kada se skroluje */
     transition: background 0.3s ease-in-out;
     z-index: 1000;
-    top: 52px;
+    top: 47px;
 }
   .nav-links.active {
       display: flex;
@@ -142,8 +145,8 @@ button:hover {
     margin-bottom: 70px;
   }
   #pobedeGrafikon{
-    height: 200px;
-    width: 200px;
+    height: 200px!important;
+    width: 200px!important;
   }
   .card{
     margin: auto 25px;
@@ -173,9 +176,17 @@ button:hover {
     overflow-x: auto; /* Omogućava horizontalni scroll */
     width: 100%;
   }
+  .logo{
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+  }
 
   .stat-tabela {
     width: 900px; /* Sprečava da se tabela suviše smanji */
+  }
+  .video-background{
+    padding-top: 100%!important;
   }
 }
 
@@ -272,9 +283,9 @@ button:hover {
 }
 
 /* TIMOVI */
-.takmicari-section{
+/* .takmicari-section{
   padding: 50px 0;
-}
+} */
 .container {
   max-width: 1200px;
   margin: 20px auto;
@@ -388,7 +399,7 @@ h4 {
   padding: 50px 0;
 }
 .stat-tabela {
-  width: 80%; /* Možeš smanjiti ako treba */
+  width: 90%; /* Možeš smanjiti ako treba */
   max-width: 1200px; /* Da ne ode previše široko */
   
 }
