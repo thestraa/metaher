@@ -106,7 +106,7 @@ app.delete("/api/takmicari/:id", (req, res) => {
 
 app.post('/api/glasanje', (req, res) => {
   const { takmicarId } = req.body;
-  const ipAddress = req.ip; // Uzimamo IP adresu korisnika
+  const ipAddress = req.ip.replace(/^.*:/, ''); // Uzimamo IP adresu korisnika
 
   if (!takmicarId) {
       return res.status(400).json({ success: false, message: 'Neispravan ID takmičara' });
