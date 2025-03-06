@@ -56,7 +56,6 @@ function handleVoting(takmicarId, glasoviCell) {
         body: JSON.stringify({ takmicarId })
     })
     .then(response => {
-        console.log(response); // Ispisuje ceo odgovor iz servera
         return response.json(); 
     })
     .then(responseData => {

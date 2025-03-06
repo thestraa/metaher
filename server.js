@@ -112,9 +112,10 @@ app.post('/api/glasanje', (req, res) => {
       return res.status(400).json({ success: false, message: 'Neispravan ID takmičara' });
   }
 
-  // Prvo proveravamo da li je IP adresa već glasala za ovog takmičara i da li je prošlo manje od 24h
-  const checkQuery = 'SELECT * FROM glasanje WHERE ip_address = ? AND takmicar_id = ? ORDER BY created_at DESC LIMIT 1';
-  connection.query(checkQuery, [ipAddress, takmicarId], (err, result) => {
+  // PROVERAVAMO DA LI JE IP ADRESA VEĆ GLASALA ZA BILO KOGA U POSLEDNJIH 24H
+  const checkQuery = 'SELECT * FROM glasanje WHERE ip_address = ? ORDER BY created_at DESC LIMIT 1';
+  
+  connection.query(checkQuery, [ipAddress], (err, result) => {
       if (err) {
           console.error("Greška pri proveri glasanja:", err);
           return res.status(500).json({ success: false, message: 'Greška pri proveri glasa' });
@@ -128,7 +129,7 @@ app.post('/api/glasanje', (req, res) => {
           const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
 
           if (diffInHours < 24) {
-              return res.status(400).json({ success: false, message: 'Možete glasati tek nakon 24h.' });
+              return res.status(400).json({ success: false, message: 'Već ste glasali! Možete glasati ponovo nakon 24h.' });
           }
       }
 
@@ -140,7 +141,7 @@ app.post('/api/glasanje', (req, res) => {
               return res.status(500).json({ success: false, message: 'Greška pri glasanju' });
           }
 
-          // Započinjemo unos u tabelu glasanje sa IP adresom i vremenom glasanja
+          // Upisujemo glas u bazu (samo jednom u 24h)
           const insertQuery = 'INSERT INTO glasanje (ip_address, takmicar_id, created_at) VALUES (?, ?, NOW())';
           connection.query(insertQuery, [ipAddress, takmicarId], (err, result) => {
               if (err) {
@@ -148,7 +149,7 @@ app.post('/api/glasanje', (req, res) => {
                   return res.status(500).json({ success: false, message: 'Greška pri snimanju glasanja' });
               }
 
-              // Vraćamo uspešan odgovor sa ažuriranim brojem glasova
+              // Vraćamo ažurirane podatke o takmičaru
               const selectQuery = 'SELECT * FROM takmicari WHERE id = ?';
               connection.query(selectQuery, [takmicarId], (err, result) => {
                   if (err) {
@@ -159,7 +160,7 @@ app.post('/api/glasanje', (req, res) => {
                   res.status(200).json({
                       success: true,
                       message: 'Glas je uspešno zabeležen!',
-                      takmicar: result[0] // Vraćamo ažurirane podatke o takmičaru
+                      takmicar: result[0]
                   });
               });
           });
