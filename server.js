@@ -11,6 +11,14 @@ app.listen(port, () => {
 app.use(cors()); //Omogućava frontend-u da komunicira sa backend-om
 app.use(express.json());
 
+// Omogućiti pristup statičkim fajlovima, ako ih imaš (CSS, slike, JS)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Ruka koja šalje HTML stranicu
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));  // Pošaljemo HTML fajl sa početne stranice
+});
+
 app.get("/api/takmicari", (req, res) => {
   db.query("SELECT * FROM takmicari", (err, results) => {
     if (err) {
