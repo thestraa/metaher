@@ -2,10 +2,14 @@ const mysql = require('mysql2');
 const express = require("express");
 const cors = require("cors"); 
 const path = require('path');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const app = express();
 const port = process.env.PORT || 3000; 
 const API_URL = process.env.API_URL || 'http://localhost:3000/api/takmicari';
-console.log(API_URL);
+const SECRET_KEY = process.env.SECRET_KEY;  // Korišćenje sigurnog ključa za JWT
+
 
 const connection = mysql.createConnection(process.env.DATABASE_URL);
 
@@ -23,12 +27,64 @@ app.listen(port, () => {
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Ruta za početnu stranicu
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
+
+const users = [
+  { username: 'admin', password: '$2a$10$7eHEsdMkRzR1FtzIuKxx5eFH51EVz4Zrz8Imn3bFOSsqevu52zBzi' } // Hashovana lozinka za "admin"
+];
+
+// Login ruta
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  
+  const user = users.find(u => u.username === username);
+  if (!user) {
+    return res.status(400).json({ message: 'Korisnik ne postoji' });
+  }
+
+  // Provera lozinke
+  bcrypt.compare(password, user.password, (err, result) => {
+    if (err || !result) {
+      return res.status(400).json({ message: 'Pogrešna lozinka' });
+    }
+
+    // Kreiraj JWT token
+    const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '24h' });
+
+    // Postavi token u cookie
+    res.cookie('authToken', token, {
+      httpOnly: true,   // Token nije dostupan putem JavaScript-a
+      secure: process.env.NODE_ENV === 'production',  // Samo na HTTPS
+      maxAge: 24 * 60 * 60 * 1000,  // 24h
+    });
+    
+    res.json({ message: 'Uspesna prijava' });
+  });
+});
+
+// Middleware za proveru autentifikacije putem JWT tokena iz cookies
+function authenticateJWT(req, res, next) {
+  const token = req.cookies.authToken;
+  if (!token) return res.status(403).json({ message: 'Nedostaje token' });
+
+  jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    if (err) return res.status(403).json({ message: 'Neautorizovani pristup' });
+    req.user = decoded;
+    next();
+  });
+}
+
+// Protected route za admin pristup
+app.get('/api/admin', authenticateJWT, (req, res) => {
+  res.json({ message: 'Dobrodošli, admin!' });
+});
+
 
 // API za preuzimanje takmičara
 app.get("/api/takmicari", (req, res) => {
