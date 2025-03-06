@@ -1,3 +1,4 @@
+const mysql = require('mysql2');
 const express = require("express");
 const cors = require("cors"); 
 const db = require("./db");
@@ -12,7 +13,15 @@ app.listen(port, () => {
 });
 app.use(cors()); //Omogućava frontend-u da komunicira sa backend-om
 app.use(express.json());
-
+const connection = mysql.createConnection(process.env.DATABASE_URL);
+// Poveži se sa bazom
+connection.connect((err) => {
+  if (err) {
+    console.error('Greška pri povezivanju sa bazom: ' + err.stack);
+    return;
+  }
+  console.log('Povezan sa bazom kao ID ' + connection.threadId);
+});
 // Omogućiti pristup statičkim fajlovima, ako ih imaš (CSS, slike, JS)
 app.use(express.static(path.join(__dirname, 'public')));
 
