@@ -1,3 +1,11 @@
+const API_URL = process.env.NODE_ENV === 'production'
+  ? 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari'
+  : 'http://localhost:3000/api/takmicari';
+
+const API_URL_VOTE = process.env.NODE_ENV === 'productions'
+? 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/glasanje'
+: 'http://localhost:3000/api/glasanje';
+  
 function voting() {
     fetch('http://localhost:3000/api/takmicari') // Obavezno koristite vašu tačnu URL adresu API-ja
     .then(response => response.json())
@@ -45,7 +53,7 @@ function voting() {
 
 // Nova funkcija koja se poziva kada korisnik klikne na takmičara
 function handleVoting(takmicarId, glasoviCell) {
-    fetch('http://localhost:3000/api/glasanje', {
+    fetch(API_URL_VOTE, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

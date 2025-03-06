@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:3000/api/takmicari";
+const API_URL = process.env.NODE_ENV === 'production'
+  ? 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari'
+  : 'http://localhost:3000/api/takmicari';
 
 // Funkcija za učitavanje takmičara
 function ucitajTakmicare() {
@@ -67,7 +69,7 @@ document.getElementById("dodajTakmicaraForm").addEventListener("submit", functio
         ukupne_igre,
         tim // Dodajemo tim u telo zahteva
     };
-    fetch("http://localhost:3000/api/takmicari", {
+    fetch(API_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"  // Pobrinite se da je Content-Type postavljen na JSON

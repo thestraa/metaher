@@ -1,3 +1,6 @@
+const API_URL = process.env.NODE_ENV === 'production'
+  ? 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari'
+  : 'http://localhost:3000/api/takmicari';
 //Navbar
 function toggleMenu() {
   document.querySelector(".nav-links").classList.toggle("active");
@@ -75,7 +78,7 @@ window.onload = function() {
   sortTable(3, "desc"); // Sortira tabelu prema broju pobeda (četvrta kolona, indeks 3)
 };
 document.addEventListener("DOMContentLoaded", function() {
-  fetch("http://localhost:3000/api/takmicari")
+  fetch(API_URL)
       .then(response => response.json())
       .then(data => {
           const containerZeleni = document.getElementById("zeleniTim");
