@@ -1,5 +1,6 @@
 const API_URL = 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari';
 
+
 // Funkcija za učitavanje takmičara
 function ucitajTakmicare() {
     fetch(API_URL)
