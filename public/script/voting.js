@@ -1,7 +1,5 @@
-// import API_URL from "config.js"
-// const API_URL_VOTE = process.env.NODE_ENV === 'productions'
-// ? 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/glasanje'
-// : 'http://localhost:3000/api/glasanje';
+const API_URL = 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari';
+const API_URL_VOTE = 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/glasanje';
   
 function voting() {
     fetch(API_URL) // Obavezno koristite vašu tačnu URL adresu API-ja
@@ -57,16 +55,15 @@ function handleVoting(takmicarId, glasoviCell) {
         },
         body: JSON.stringify({ takmicarId })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log(response); // Ispisuje ceo odgovor iz servera
+        return response.json(); 
+    })
     .then(responseData => {
         if (responseData.success) {
-            // Ažuriraj glasove u DOM-u sa vrednostima koje se vrate iz backend-a
             glasoviCell.textContent = `Glasova: ${responseData.takmicar.glasovi}`;
-            
-            // Prikazivanje obaveštenja o uspehu
             showNotification('Hvala Vam što ste glasali! Glas je uspešno zabeležen.', 'success');
         } else {
-            // Prikazivanje greške
             showNotification(responseData.message, 'error');
         }
     })

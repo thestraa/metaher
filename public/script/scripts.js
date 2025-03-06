@@ -1,3 +1,4 @@
+const API_URL = 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari';
 
 //Navbar
 function toggleMenu() {
@@ -14,16 +15,8 @@ window.addEventListener("scroll", function () {
 });
 
 //Sorting table
-function sortTable(n, defaultDir = null) {
-  let table,
-    rows,
-    switching,
-    i,
-    x,
-    y,
-    shouldSwitch,
-    dir,
-    switchcount = 0;
+window.sortTable = function(n, defaultDir = null) {
+  let table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
   table = document.getElementById("statsTable");
   switching = true;
   
@@ -32,25 +25,25 @@ function sortTable(n, defaultDir = null) {
 
   while (switching) {
     switching = false;
-    rows = table.rows;
-    for (i = 1; i < rows.length - 1; i++) {
+    rows = table.getElementsByTagName("TR"); // Pronađi sve redove tabele
+    for (i = 1; i < rows.length - 1; i++) { // Počni od 1 da bi izbegao zaglavlje
       shouldSwitch = false;
-      x = rows[i].getElementsByTagName("TD")[n];
+      x = rows[i].getElementsByTagName("TD")[n]; // Dohvati ćelije u određenoj koloni
       y = rows[i + 1].getElementsByTagName("TD")[n];
 
       if (dir == "asc") {
-        if (!isNaN(parseInt(x.innerHTML)) && !isNaN(parseInt(y.innerHTML))) {
-          if (parseInt(x.innerHTML) > parseInt(y.innerHTML)) {
+        if (!isNaN(parseFloat(x.innerHTML)) && !isNaN(parseFloat(y.innerHTML))) {
+          if (parseFloat(x.innerHTML) > parseFloat(y.innerHTML)) { // Ako su brojevi
             shouldSwitch = true;
             break;
           }
-        } else if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+        } else if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) { // Ako su stringovi
           shouldSwitch = true;
           break;
         }
       } else if (dir == "desc") {
-        if (!isNaN(parseInt(x.innerHTML)) && !isNaN(parseInt(y.innerHTML))) {
-          if (parseInt(x.innerHTML) < parseInt(y.innerHTML)) {
+        if (!isNaN(parseFloat(x.innerHTML)) && !isNaN(parseFloat(y.innerHTML))) {
+          if (parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) {
             shouldSwitch = true;
             break;
           }
@@ -72,9 +65,13 @@ function sortTable(n, defaultDir = null) {
     }
   }
 }
-window.onload = function() {
-  sortTable(3, "desc"); // Sortira tabelu prema broju pobeda (četvrta kolona, indeks 3)
-};
+
+window.addEventListener('load', function() {
+  setTimeout(() => {
+    sortTable(3, "desc"); // Sortira tabelu prema broju pobeda (četvrta kolona, indeks 3)
+  }, 500); // Dodaj malo kašnjenje kako bi podaci imali vremena da se učitaju
+});
+
 document.addEventListener("DOMContentLoaded", function() {
   fetch(API_URL)
       .then(response => response.json())

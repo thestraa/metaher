@@ -1,8 +1,8 @@
-// import API_URL from "config.js"
+const API_URL = 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari';
 
 // Funkcija za učitavanje takmičara
 function ucitajTakmicare() {
-    fetch('https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari')
+    fetch(API_URL)
         .then(res => res.json())
         .then(data => {
 
