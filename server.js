@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors"); 
 const db = require("./db");
-
+const path = require('path');  // Za lakše rešavanje putanj
 const app = express();
 const port = process.env.PORT || 3000;  // koristi Heroku dodeljeni port ili 3000 ako nije dodeljen
 
