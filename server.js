@@ -3,7 +3,11 @@ const cors = require("cors");
 const db = require("./db");
 
 const app = express();
+const port = process.env.PORT || 3000;  // koristi Heroku dodeljeni port ili 3000 ako nije dodeljen
 
+app.listen(port, () => {
+  console.log(`Server pokrenut na portu ${port}`);
+});
 app.use(cors()); //Omogućava frontend-u da komunicira sa backend-om
 app.use(express.json());
 
