@@ -1,52 +1,5 @@
 const API_URL = 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari';
 
-document.getElementById('login-form').addEventListener('submit', function (event) {
-    event.preventDefault();
-  
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-  
-    fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.message === 'Uspesna prijava') {
-        window.location.href = '/admin';  // Preusmeri na admin stranicu nakon prijave
-      } else {
-        alert('Greška pri prijavi');
-      }
-    })
-    .catch(err => console.error('Greška pri prijavi:', err));
-  });
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const token = document.cookie.split(';').find(row => row.startsWith('authToken='));
-    
-    if (!token) {
-      window.location.href = '/login';  // Ako nema tokena, preusmeri na login
-    } else {
-      fetch('/api/admin', {
-        headers: {
-          'Authorization': `Bearer ${token.split('=')[1]}`
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.message === 'Dobrodošli, admin!') {
-          document.getElementById('admin-content').style.display = 'block';
-        } else {
-          window.location.href = '/login';  // Preusmeri ako nema prava
-        }
-      });
-    }
-  });
-
-  
 // Funkcija za učitavanje takmičara
 function ucitajTakmicare() {
     fetch(API_URL)
