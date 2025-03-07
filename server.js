@@ -110,54 +110,62 @@ app.post('/api/glasanje', (req, res) => {
   const { takmicarId } = req.body;
   const ipAddress = req.ip.replace(/^.*:/, ''); // Uzimamo IP adresu korisnika
 
+  console.log("📌 Početak glasanja za ID:", takmicarId);
+
   if (!takmicarId) {
       return res.status(400).json({ success: false, message: 'Neispravan ID takmičara' });
   }
 
-  // PROVERAVAMO DA LI JE IP ADRESA VEĆ GLASALA ZA BILO KOGA U POSLEDNJIH 24H
-  const checkQuery = 'SELECT * FROM glasanje WHERE ip_address = ? ORDER BY created_at DESC LIMIT 1';
-  
+  const checkQuery = 'SELECT created_at FROM glasanje WHERE ip_address = ? ORDER BY created_at DESC LIMIT 1';
+
   connection.query(checkQuery, [ipAddress], (err, result) => {
       if (err) {
-          console.error("Greška pri proveri glasanja:", err);
+          console.error("❌ Greška pri proveri glasanja:", err);
           return res.status(500).json({ success: false, message: 'Greška pri proveri glasa' });
       }
+
+      console.log("📌 Rezultat provere glasanja:", result);
 
       if (result.length > 0) {
           const lastVote = result[0];
           const now = new Date();
           const lastVoteTime = new Date(lastVote.created_at);
-          const diffInMilliseconds = now - lastVoteTime;
-          const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
+          const diffInHours = (now - lastVoteTime) / (1000 * 60 * 60);
 
           if (diffInHours < 24) {
+              console.log("⚠️ Korisnik već glasao u poslednjih 24h!");
               return res.status(400).json({ success: false, message: 'Već ste glasali! Možete glasati ponovo nakon 24h.' });
           }
       }
 
-      // Ako nije glasao u poslednjih 24h, dozvoljavamo glasanje
+      console.log("✅ Glasanje dozvoljeno!");
+
       const updateQuery = 'UPDATE takmicari SET glasovi = glasovi + 1 WHERE id = ?';
       connection.query(updateQuery, [takmicarId], (err, result) => {
           if (err) {
-              console.error("Greška pri ažuriranju broja glasova:", err);
+              console.error("❌ Greška pri ažuriranju broja glasova:", err);
               return res.status(500).json({ success: false, message: 'Greška pri glasanju' });
           }
 
-          // Upisujemo glas u bazu (samo jednom u 24h)
+          console.log("📌 Glasovi ažurirani!");
+
           const insertQuery = 'INSERT INTO glasanje (ip_address, takmicar_id, created_at) VALUES (?, ?, NOW())';
           connection.query(insertQuery, [ipAddress, takmicarId], (err, result) => {
               if (err) {
-                  console.error("Greška pri unosu glasanja:", err);
+                  console.error("❌ Greška pri unosu glasanja:", err);
                   return res.status(500).json({ success: false, message: 'Greška pri snimanju glasanja' });
               }
 
-              // Vraćamo ažurirane podatke o takmičaru
+              console.log("✅ Glasanje snimljeno!");
+
               const selectQuery = 'SELECT * FROM takmicari WHERE id = ?';
               connection.query(selectQuery, [takmicarId], (err, result) => {
                   if (err) {
-                      console.error("Greška pri preuzimanju podataka o takmičaru:", err);
+                      console.error("❌ Greška pri preuzimanju podataka o takmičaru:", err);
                       return res.status(500).json({ success: false, message: 'Greška pri preuzimanju podataka' });
                   }
+
+                  console.log("📌 Slanje odgovora sa ažuriranim podacima!");
 
                   res.status(200).json({
                       success: true,
