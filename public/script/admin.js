@@ -1,23 +1,26 @@
 const API_URL = 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari';
 
+// Modified log function to handle combined messages
+function logUpdate(message) {
+    const logList = document.getElementById('logList');
+    const logEntry = document.createElement('li');
+    logEntry.innerHTML = `
+        <strong>[${new Date().toLocaleTimeString()}]</strong> 
+        ${message}
+    `;
+    logList.prepend(logEntry);
+}
 
 // Funkcija za učitavanje takmičara
 function ucitajTakmicare() {
     fetch(API_URL)
         .then(res => res.json())
         .then(data => {
-
             const listaTakmicara = document.getElementById("listaTakmicara");
-
-            // Očisti postojeću tabelu
             listaTakmicara.innerHTML = "";
-
-            // Kombinuj zelene i žute takmičare u jedan niz
             const sviTakmicari = [...data.zeleniTim, ...data.zutiTim];
 
-            // Proveri da li su podaci sada niz
             if (Array.isArray(sviTakmicari)) {
-                // Ako je sviTakmicari niz, iteriraj kroz njega
                 sviTakmicari.forEach(t => {
                     const row = document.createElement("tr");
                     row.setAttribute("data-id", t.id);
@@ -26,9 +29,9 @@ function ucitajTakmicare() {
                         <td>${t.id}</td>
                         <td>${t.ime}</td>
                         <td>${t.prezime}</td>
-                        <td>${t.pobede}</td>
                         <td>${t.ukupne_igre}</td>
-                        <td>${t.tim || "Nema tima"}</td> <!-- Prikazujemo tim -->
+                        <td>${t.pobede}</td>
+                        <td>${t.tim || "Nema tima"}</td>
                         <td>
                             <button id="updateButton-${t.id}">
                                 ✏ Ažuriraj
@@ -38,7 +41,6 @@ function ucitajTakmicare() {
                     `;
                     listaTakmicara.appendChild(row);
 
-                    // Dodaj event listener za ažuriranje
                     const updateButton = document.getElementById(`updateButton-${t.id}`);
                     updateButton.addEventListener("click", function() {
                         otvoriModal(t.id, t.ime, t.prezime, t.pobede, t.ukupne_igre, t.tim);
@@ -104,29 +106,56 @@ function obrisiTakmicara(id) {
     }
 }
 
-// Funkcija za otvaranje modala
+// Modified modal opening function to store original values
 function otvoriModal(id, ime, prezime, pobede, ukupne_igre, tim) {
+    const modal = document.getElementById("modal");
+    modal.dataset.originalData = JSON.stringify({
+        ime: ime,
+        prezime: prezime,
+        pobede: pobede,
+        ukupne_igre: ukupne_igre,
+        tim: tim
+    });
+    
     document.getElementById("edit-id").value = id;
     document.getElementById("edit-ime").value = ime;
     document.getElementById("edit-prezime").value = prezime;
     document.getElementById("edit-pobede").value = pobede;
     document.getElementById("edit-ukupne-igre").value = ukupne_igre;
     document.getElementById("edit-tim").value = tim;
-    document.getElementById("modal").style.display = "block";
+    modal.style.display = "block";
 }
 
 function zatvoriModal() {
     document.getElementById("modal").style.display = "none";
 }
 
-// Funkcija za slanje izmjena
+// Modified sacuvajIzmene function with logging
 function sacuvajIzmene() {
+    const modal = document.getElementById("modal");
+    const originalData = JSON.parse(modal.dataset.originalData);
+    const { ime, prezime } = originalData; // Get player name
+    
     const id = document.getElementById("edit-id").value;
-    const ime = document.getElementById("edit-ime").value;
-    const prezime = document.getElementById("edit-prezime").value;
     const pobede = document.getElementById("edit-pobede").value;
     const ukupne_igre = document.getElementById("edit-ukupne-igre").value;
-    const tim = document.getElementById("edit-tim").value;
+
+
+    // Build log message
+    const changes = [];
+    
+    if (originalData.ukupne_igre !== ukupne_igre) {
+        changes.push(`Ukupne igre sa ${originalData.ukupne_igre} na ${ukupne_igre}`);
+    }
+
+    if (originalData.pobede !== pobede) {
+        changes.push(`Pobede sa ${originalData.pobede} na ${pobede}`);
+    }
+
+    if (changes.length > 0) {
+        const message = `Igrač ${ime} ${prezime}: ${changes.join(', ')}`;
+        logUpdate(message);
+    }
 
     fetch(`${API_URL}/${id}`, {
         method: "PUT",
@@ -134,20 +163,12 @@ function sacuvajIzmene() {
         body: JSON.stringify({ pobede, ukupne_igre, tim })
     })
     .then(() => {
-        // Dodajemo klasu 'updated' na red koji je ažuriran
         const red = document.querySelector(`tr[data-id="${id}"]`);
-        red.classList.remove("updated"); // Ukloni klasu ako već postoji
-
-        void red.offsetWidth; // Forsira reflow, resetuje animaciju
-        
-        red.classList.add("updated"); // Ponovo dodaj klasu
-        console.log("Dodao klasu .updated na:", red);
-        // Onda uklonimo klasu 'updated' nakon 7 sekundi (da bi animacija bila vidljiva)
-        setTimeout(() => {
-            red.classList.remove("updated");
-        }, 7000);
-
-        ucitajTakmicare(); // Osvježavanje podataka
+        red.classList.remove("updated");
+        void red.offsetWidth;
+        red.classList.add("updated");
+        setTimeout(() => red.classList.remove("updated"), 7000);
+        ucitajTakmicare();
         zatvoriModal();
     })
     .catch(err => console.error("Greška pri ažuriranju:", err));

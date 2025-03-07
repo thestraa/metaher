@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg" />
+    <link rel="shortcut icon" href="favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="favicon/site.webmanifest" />
     <title>Admin Panel - Survivor</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
@@ -14,8 +19,8 @@
     <form id="dodajTakmicaraForm">
         <input type="text" id="ime" placeholder="Ime" required>
         <input type="text" id="prezime" placeholder="Prezime" required>
-        <input type="number" id="pobede" placeholder="Pobede" value="0">
         <input type="number" id="ukupne_igre" placeholder="Ukupne igre" value="0">
+        <input type="number" id="pobede" placeholder="Pobede" value="0">
         <select id="tim" required>
             <option value="zeleniTim">Zeleni Tim</option>
             <option value="zutiTim">Žuti Tim</option>
@@ -24,14 +29,15 @@
     </form>
 
     <!-- Tabela sa takmičarima -->
+    <div class="admin-table-container">
     <table class="admin-tabela">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Ime</th>
                 <th>Prezime</th>
-                <th>Pobede</th>
                 <th>Ukupne Igre</th>
+                <th>Pobede</th>
                 <th>Tim</th>
                 <th>Akcije</th>
             </tr>
@@ -40,6 +46,12 @@
             <!-- Dinamički podaci će biti učitani ovde -->
         </tbody>
     </table>
+    </div>
+
+    <div class="log-container">
+        <h3>Poslednje promjene</h3>
+        <ul id="logList"></ul>
+      </div>
 
     <!-- Modal za ažuriranje -->
     <div id="modal" class="modal" style="display:none;">
@@ -49,8 +61,8 @@
             <input type="hidden" id="edit-id">
             <input type="text" id="edit-ime" placeholder="Ime" required>
             <input type="text" id="edit-prezime" placeholder="Prezime" required>
-            <input type="number" id="edit-pobede" placeholder="Pobede">
             <input type="number" id="edit-ukupne-igre" placeholder="Ukupne igre">
+            <input type="number" id="edit-pobede" placeholder="Pobede">
             <select id="edit-tim" required>
                 <option value="zeleniTim">Zeleni Tim</option>
                 <option value="zutiTim">Žuti Tim</option>

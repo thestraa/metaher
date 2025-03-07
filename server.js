@@ -103,7 +103,6 @@ app.post('/api/glasanje', async (req, res) => {
     const { takmicarId } = req.body;
     const ipAddress = req.ip.replace(/^.*:/, '');
 
-    console.log("📌 Početak glasanja za ID:", takmicarId);
 
     if (!takmicarId) {
       return res.status(400).json({ success: false, message: 'Neispravan ID takmičara' });
@@ -128,7 +127,6 @@ app.post('/api/glasanje', async (req, res) => {
 
     res.status(200).json({ success: true, message: 'Glas je uspešno zabeležen!', takmicar: takmicar[0] });
   } catch (err) {
-    console.error("❌ Greška pri glasanju:", err);
     res.status(500).json({ success: false, message: 'Greška na serveru' });
   }
 });

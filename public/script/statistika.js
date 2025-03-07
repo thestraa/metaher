@@ -12,7 +12,9 @@ function fetchStats() {
         if (Array.isArray(data.zeleniTim)) {
             data.zeleniTim.forEach(takmicar => {
                 const row = document.createElement('tr');
+                const uspesnost = (takmicar.pobede / takmicar.ukupne_igre) * 100;
                 row.classList.add("green"); // Ponovo dodaj klasu
+                
 
                 const imeCell = document.createElement('td');
                 imeCell.textContent = takmicar.ime;
@@ -34,9 +36,9 @@ function fetchStats() {
                 poraziCell.textContent = takmicar.ukupne_igre - takmicar.pobede;
                 row.appendChild(poraziCell);
 
-                const poslednjaIgraCell = document.createElement('td');
-                poslednjaIgraCell.textContent = takmicar.poslednja_igra || 'Nema podataka'; // Ako nema poslednje igre, pišemo 'Nema podataka'
-                row.appendChild(poslednjaIgraCell);
+                const uspesnostCell = document.createElement('td');
+                uspesnostCell.textContent = uspesnost.toFixed(2) || 'Nema podataka'; // Ako nema poslednje igre, pišemo 'Nema podataka'
+                row.appendChild(uspesnostCell);
 
                 statsBody.appendChild(row);
             });
@@ -46,6 +48,7 @@ function fetchStats() {
         if (Array.isArray(data.zutiTim)) {
             data.zutiTim.forEach(takmicar => {
                 const row = document.createElement('tr');
+                const uspesnost = (takmicar.pobede / takmicar.ukupne_igre) * 100;
                 row.classList.add("yellow"); // Ponovo dodaj klasu
 
                 const imeCell = document.createElement('td');
@@ -68,9 +71,9 @@ function fetchStats() {
                 poraziCell.textContent = takmicar.ukupne_igre - takmicar.pobede;
                 row.appendChild(poraziCell);
 
-                const poslednjaIgraCell = document.createElement('td');
-                poslednjaIgraCell.textContent = takmicar.poslednja_igra || 'Nema podataka'; // Ako nema poslednje igre, pišemo 'Nema podataka'
-                row.appendChild(poslednjaIgraCell);
+                const uspesnostCell = document.createElement('td');
+                uspesnostCell.textContent = uspesnost.toFixed(2) || 'Nema podataka'; // Ako nema poslednje igre, pišemo 'Nema podataka'
+                row.appendChild(uspesnostCell);
 
                 statsBody.appendChild(row);
             });
