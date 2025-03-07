@@ -8,15 +8,14 @@ const port = process.env.PORT || 3000;
 const API_URL = process.env.API_URL || 'http://localhost:3000/api/takmicari';
 
 
-const connection = mysql.createConnection(process.env.DATABASE_URL);
-
-connection.connect((err) => {
-  if (err) {
-    console.error('Greška pri povezivanju sa bazom: ' + err.stack);
-    return;
-  }
-  console.log('Povezan sa bazom kao ID ' + connection.threadId);
+const pool = mysql.createPool({
+  uri: process.env.DATABASE_URL,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
+
+const connection = pool.promise();
 
 app.listen(port, () => {
   console.log(`Server pokrenut na portu ${port}`);
@@ -34,17 +33,17 @@ app.get('/', (req, res) => {
 
 
 // API za preuzimanje takmičara
-app.get("/api/takmicari", (req, res) => {
-  connection.query("SELECT * FROM takmicari", (err, results) => {
-    if (err) {
-      console.error("Greška pri dohvatanju takmičara:", err);
-      return res.status(500).json({ error: "Greška na serveru" });
-    }
+app.get("/api/takmicari", async (req, res) => {
+  try {
+    const [results] = await connection.execute("SELECT * FROM takmicari");
     const zeleniTim = results.filter(t => t.tim === "zeleni");
     const zutiTim = results.filter(t => t.tim === "zuti");
 
     res.json({ zeleniTim, zutiTim });
-  });
+  } catch (err) {
+    console.error("Greška pri dohvatanju takmičara:", err);
+    res.status(500).json({ error: "Greška na serveru" });
+  }
 });
 
 // Dodavanje takmičara
