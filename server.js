@@ -160,7 +160,10 @@ app.post('/api/glasanje', async (req, res) => {
 });
 
 app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api')) {  // Ako nije API zahtev, vrati index.html
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  if (req.path.startsWith('/api')) {  // Ako je API zahtev, nemoj slati index.html
+    return res.status(404).json({ error: 'API ruta nije pronađena' });
   }
+
+  // Za sve ostale rute, pošaljite index.html
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
