@@ -56,22 +56,21 @@ app.get("/api/takmicari", async (req, res) => {
   }
 });
 // API za preuzimanje takmičara - MODAL
-app.get('/api/takmicar/:id', async (req, res) => {
+app.get("/api/takmicar/:id", async (req, res) => {
+  const takmicarId = req.params.id;  // ID iz URL-a
   try {
-    const { id } = req.params;
-    const [results] = await connection.execute("SELECT * FROM takmicari WHERE id = ?", [id]);
-
-    if (results.length === 0) {
+    const [result] = await connection.execute("SELECT * FROM takmicari WHERE id = ?", [takmicarId]);
+    
+    if (result.length === 0) {
       return res.status(404).json({ error: "Takmičar nije pronađen" });
     }
 
-    res.json(results[0]); // Vraća podatke o takmičaru
+    res.json(result[0]);
   } catch (err) {
-    console.error('Greška pri dohvatanju takmičara:', err);
-    res.status(500).json({ error: 'Greška na serveru' });
+    console.error("Greška pri dohvatanju takmičara:", err);
+    res.status(500).json({ error: "Greška na serveru" });
   }
 });
-
 // Dodavanje takmičara
 app.post("/api/takmicari", async (req, res) => {
   try {
