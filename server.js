@@ -72,10 +72,18 @@ app.get("/api/takmicar/:id", async (req, res) => {
   }
 });
 // API za preuzimanje takmičara po imenu i prezimenu
+// API za preuzimanje takmičara po imenu i prezimenu
 app.get("/api/takmicar/:imePrezime", async (req, res) => {
   try {
-    const imePrezime = req.params.imePrezime.split('-').map(decodeURIComponent).join(' '); // Ime i prezime se razdvaja crticama
-    const [results] = await connection.execute("SELECT * FROM takmicari WHERE CONCAT(ime, '-', prezime) = ?", [imePrezime]);
+    // Dekodiraj imePrezime i zameni '-' sa razmakom
+    const imePrezime = decodeURIComponent(req.params.imePrezime.replace('-', ' '));
+    console.log("Ime i prezime iz URL-a:", imePrezime);
+
+    // Pretvori oba imena i prezimena na mala slova za upit
+    const [results] = await connection.execute(
+      "SELECT * FROM takmicari WHERE LOWER(ime) = ? AND LOWER(prezime) = ?",
+      imePrezime.split(' ').map(str => str.toLowerCase()) // Split i konvertuj oba u mala slova
+    );
 
     if (results.length === 0) {
       return res.status(404).json({ error: "Takmičar nije pronađen" });
@@ -87,6 +95,7 @@ app.get("/api/takmicar/:imePrezime", async (req, res) => {
     res.status(500).json({ error: "Greška na serveru" });
   }
 });
+
 
 // Dodavanje takmičara
 app.post("/api/takmicari", async (req, res) => {
