@@ -169,7 +169,7 @@ async function getTakmicarByName(ime, prezime) {
     throw err;
   }
 }
-app.get('/takmicar/:imePrezime', async (req, res) => {
+app.get('/api/takmicar/:imePrezime', async (req, res) => {
   const [ime, prezime] = req.params.imePrezime.split('-'); // Razdvaja ime i prezime
   try {
     // Pretražuje bazu po imenu i prezimenu
@@ -181,4 +181,8 @@ app.get('/takmicar/:imePrezime', async (req, res) => {
   } catch (error) {
     res.status(404).json({ error: "Takmičar nije pronađen" });
   }
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

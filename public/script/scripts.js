@@ -291,13 +291,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadTakmicarFromUrl = async () => {
     const path = window.location.pathname.split('/');
     if (path[1] === 'takmicar' && path[2]) {
-      const imePrezime = path[2].replace('-', ' '); // Prebacuje "-" u razmak
-
+      const imePrezime = path[2].replace('-', ''); // Prebacuje "-" u razmak
+  
       try {
         // Dohvati podatke sa servera za tog takmičara
-        const response = await fetch(`/takmicar/${imePrezime}`);
+        const response = await fetch(`/api/takmicar/${imePrezime}`);
         const takmicar = await response.json();
-
+  
         // Ažuriraj modal sa podacima o takmičaru
         document.getElementById("modal-ime").textContent = `${takmicar.ime} ${takmicar.prezime}`;
         document.getElementById("modal-zanimanje").textContent = `${takmicar.zanimanje}, ${takmicar.godine}`;
@@ -307,12 +307,11 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("modal-pobednicki-postotak").textContent = ((takmicar.pobede / takmicar.ukupne_igre) * 100).toFixed(2) + "%";
         document.getElementById("modal-slika").src = takmicar.slika;
         document.getElementById("modal-slika").alt = `${takmicar.ime} ${takmicar.prezime}`;
-
+  
         // Dodaj takmičara kao data atribut na modal
         modal.dataset.takmicar = JSON.stringify(takmicar);
-
+  
         modal.style.display = "block"; // Prikazi modal
-
       } catch (error) {
         console.error('Greška pri učitavanju takmičara:', error);
       }
