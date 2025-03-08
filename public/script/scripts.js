@@ -142,51 +142,59 @@ document.addEventListener("DOMContentLoaded", function() {
     .catch(error => console.error("Greška pri učitavanju podataka:", error));
 });
 
-// Funkcija za kreiranje grafikona
-function prikaziGrafikon(pobedeZuti, pobedeZeleni) {
-  const ctx = document.getElementById("pobedeGrafikon").getContext("2d");
+const canvas = document.getElementById('pobedeChart');
+canvas.width = canvas.parentElement.clientWidth;
+canvas.height = canvas.parentElement.clientWidth * 0.75; // Održava dobar odnos širine i visine
+// Prikazivanje pobeda dinamicko grafik
+async function prikaziPobede() {
+  try {
+      const response = await fetch('https://morning-taiga-69885-23caee796dab.herokuapp.com/api/pobede'); // Zameni sa pravim URL-om
+      const data = await response.json();
 
-  // Kreiraj okrugli grafikon
-  new Chart(ctx, {
-      type: "pie",  // Tip grafikona
-      data: {
-          labels: [`${pobedeZuti}`, `${pobedeZeleni}`],  // Oznake timova
-          datasets: [{
-              data: [pobedeZuti, pobedeZeleni],  // Podaci o pobedama
-              backgroundColor: ["#f4b400", "#00360c"],  // Boje timova (žuti, zeleni)
-              hoverBackgroundColor: ["#f5c029", "#025b15"],  // Boje na hover
-          }]
-      },
-      options: {
-          responsive: true,  // Da bude responzivno
-          plugins: {
-              legend: {
-                  position: "top",  // Pozicija legende
-                  labels: {
-                    font: {
-                        family: "'Montserrat', sans-serif",  // Promeni font
-                        size: 16,  // Veličina fonta
-                        weight: "bold",  // Debljina fonta
-                    },
-                    color: "#fff",  // Boja teksta legendi
-                    boxWidth: 20,  // Širina kutije boje u legendi
-                    boxHeight: 20,  // Visina kutije boje u legendi
-                }
+      const ctx = document.getElementById('pobedeChart').getContext('2d');
+
+      new Chart(ctx, {
+          type: 'doughnut', // Doughnut chart (kružni dijagram)
+          data: {
+              datasets: [{
+                  data: [data.zeleni, data.zuti],
+                  backgroundColor: ['#00360c', '#f4b400'], // Zelena i žuta
+                  borderColor: ['#02310c', '#d39e00'], // Tamnija nijansa za ivice
+                  borderWidth: 2,
+                  hoverOffset: 20 // Efekat "iskačuće" animacije kada pređeš mišem
+              }]
+          },
+          options: {
+              responsive: true,
+              
+              plugins: {
+                  legend: {
+                      display: true,
+                      position: 'bottom',
+                      labels: {
+                          color: '#fff', // Bele etikete ako je tamna pozadina
+                          font: { size: 16 }
+                      }
+                  }
+              },
+              animation: {
+                  animateScale: true,  // Skaliranje prilikom učitavanja
+                  animateRotate: true  // Rotacija prilikom učitavanja
               }
           }
-      }
-  });
+      });
+
+  } catch (error) {
+      console.error('Greška pri dohvaćanju pobeda:', error);
+  }
 }
-
-// Manuelno uneseni podaci
-const pobedeZuti = 3;  // Broj pobeda žutih
-const pobedeZeleni = 1;  // Broj pobeda zelenih
-
-// Prikazivanje grafikona sa brojem pobeda
-prikaziGrafikon(pobedeZuti, pobedeZeleni);
+// Ponovno skaliranje grafika kada se prozor promeni
+window.addEventListener('resize', prikaziPobede);
+// Poziv funkcije nakon učitavanja stranice
+document.addEventListener('DOMContentLoaded', prikaziPobede);
 
 // Prikazivanje pobeda dinamicko
-async function prikaziPobede() {
+async function prikaziPobedes() {
   try {
       const response = await fetch('https://morning-taiga-69885-23caee796dab.herokuapp.com/api/pobede'); // Zameni sa pravim URL-om backenda
       const data = await response.json();
@@ -199,4 +207,4 @@ async function prikaziPobede() {
 }
 
 // Poziv funkcije nakon učitavanja stranice
-document.addEventListener('DOMContentLoaded', prikaziPobede);
+document.addEventListener('DOMContentLoaded', prikaziPobedes);

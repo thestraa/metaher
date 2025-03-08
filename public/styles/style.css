@@ -22,7 +22,9 @@ h1, h2, h3 {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
-
+h2 {
+  font-size: 35px;
+}
 html {
   scroll-behavior: smooth;
 }
@@ -405,7 +407,6 @@ h4 {
 }
 .stat-tabela h2 {
   text-align: center;
-  font-size: 24px;
   margin-bottom: 15px;
   color: #ffc107; /* Zlatno-žuta nijansa */
 }
@@ -665,13 +666,6 @@ td {
   opacity: 0.7;
 }
 
-.grafikon {
-  background-color: #222;
-  padding: 50px;
-}
-.grafikon h2{
-  color: #ffc107;
-}
 .team-section{
   margin: 50px auto;
 }
@@ -711,23 +705,7 @@ td {
   opacity: 1;
   visibility: visible;
 }
-.pobede-container {
-  display: flex;
-  justify-content: center;
-  gap: 50px;
-  margin-top: 20px;
-}
 
-.pleme {
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.pleme p {
-  font-size: 32px;
-  color: #FFD700; /* Zlatna boja za isticanje */
-}
 
 /* ADMIN PANEL */
 #dodajTakmicaraForm{
@@ -802,10 +780,52 @@ td {
 .updated {
   animation: blink 5s ease-in-out infinite;
 }
-#pobedeGrafikon {
-  max-width: 600px;
-  margin: 30px auto;
-  display: block;
+.grafikon {
+  background-color: #222;
+  padding: 50px;
+}
+.grafikon h2{
+  color: #ffc107;
+}
+.pobede-container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin-top: 20px;
+}
+.pleme {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+#zuti-pobede{
+  font-size: 32px;
+  color: #FFD700; /* Zlatna boja za isticanje */
+}
+#zeleni-pobede{
+  font-size: 32px;
+  color: #186929; /* Zlatna boja za isticanje */
+}
+
+#pobedeChart {
+  width: 100% !important; /* Omogućava skaliranje */
+  height: auto !important;
+  max-width: 600px; /* Ograničava maksimalnu širinu */
+}
+#pobede {
+  text-align: center;
+  margin: 50px auto;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05); /* Lagani providni efekat */
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  width: 90%;
+}
+
+canvas {
+  max-width: 400px;
+  margin: 20px auto;
 }
 
 .log-container {
