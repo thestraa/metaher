@@ -27,11 +27,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Ruta za početnu stranicu
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
 // API za prikazivanje pobeda
 app.get('/api/pobede', async (req, res) => {
   try {
