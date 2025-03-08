@@ -291,11 +291,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadTakmicarFromUrl = async () => {
     const path = window.location.pathname.split('/');
     if (path[1] === 'takmicar' && path[2]) {
-      const imePrezime = path[2].replace('-', ''); // Prebacuje "-" u razmak
+      const imePrezime = path[2];
   
       try {
         // Dohvati podatke sa servera za tog takmičara
-        const response = await fetch(`/api/takmicar/${imePrezime}`);
+        const response = await fetch(`/takmicar/${imePrezime}`);
         const takmicar = await response.json();
   
         // Ažuriraj modal sa podacima o takmičaru
