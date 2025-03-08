@@ -161,7 +161,6 @@ app.post('/api/glasanje', async (req, res) => {
 // Funkcija za pretragu takmičara po imenu i prezimenu
 async function getTakmicarByName(ime, prezime) {
   try {
-    // Convert parameters to lowercase and use LOWER() in SQL
     const query = "SELECT * FROM takmicari WHERE LOWER(ime) = ? AND LOWER(prezime) = ?";
     const [rows] = await connection.execute(query, [ime.toLowerCase(), prezime.toLowerCase()]);
     return rows.length > 0 ? rows[0] : null;
@@ -171,7 +170,7 @@ async function getTakmicarByName(ime, prezime) {
   }
 }
 // API ruta za detalje o specifičnom takmičaru 
-app.get('/takmicar/:imePrezime', async (req, res) => {
+app.get('/api/takmicar/:imePrezime', async (req, res) => {
   const [ime, prezime] = req.params.imePrezime.split('-');
   try {
     const takmicar = await getTakmicarByName(ime, prezime);
@@ -182,7 +181,7 @@ app.get('/takmicar/:imePrezime', async (req, res) => {
   }
 });
 
-// Catch-all route (must come AFTER API routes)
+// Catch-all route (must come AFTER all API routes)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
