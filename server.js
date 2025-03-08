@@ -29,6 +29,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api')) {  // Ako nije API zahtev, vrati index.html
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  }
+});
 
 // API za prikazivanje pobeda
 app.get('/api/pobede', async (req, res) => {
