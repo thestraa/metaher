@@ -142,21 +142,20 @@ app.post('/api/glasanje', async (req, res) => {
   }
 });
 
-// Ruta za prikaz pojedinačnog takmičara -- MODAL
+// API ruta za detalje o specifičnom takmičaru 
 app.get('/takmicar/:imePrezime', async (req, res) => {
+  const imePrezime = req.params.imePrezime.replace('-', ' '); // Prebacuje "-" u razmak
+
   try {
-    const imePrezime = req.params.imePrezime.replace('-', ' '); // Prebacuje "-" u razmak
-    const query = 'SELECT * FROM takmicari WHERE CONCAT(ime, " ", prezime) = ?';
-    const [result] = await connection.execute(query, [imePrezime]);
+    const [result] = await connection.execute('SELECT * FROM takmicari WHERE CONCAT(ime, " ", prezime) = ?', [imePrezime]);
 
-    if (result.length === 0) {
-      return res.status(404).send('Takmičar nije pronađen');
+    if (result.length > 0) {
+      res.json(result[0]); // Pošaljite podatke o takmičaru u JSON formatu
+    } else {
+      res.status(404).json({ error: 'Takmičar nije pronađen' });
     }
-
-    // Vraća podatke o takmičaru
-    res.json(result[0]);
   } catch (err) {
-    console.error("Greška pri dohvatanju takmičara:", err);
-    res.status(500).send("Greška na serveru");
+    console.error('Greška pri učitavanju takmičara:', err);
+    res.status(500).json({ error: 'Greška na serveru' });
   }
 });
