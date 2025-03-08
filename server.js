@@ -79,10 +79,13 @@ app.get("/api/takmicar/:imePrezime", async (req, res) => {
     const imePrezime = decodeURIComponent(req.params.imePrezime.replace('-', ' '));
     console.log("Ime i prezime iz URL-a:", imePrezime);
 
-    // Pretvori oba imena i prezimena na mala slova za upit
+    // Splituj ime i prezime i konvertuj oba u mala slova
+    const [ime, prezime] = imePrezime.split(' ').map(str => str.toLowerCase());
+
+    // SQL upit sa LOWER za oba imena i prezimena
     const [results] = await connection.execute(
       "SELECT * FROM takmicari WHERE LOWER(ime) = ? AND LOWER(prezime) = ?",
-      imePrezime.split(' ').map(str => str.toLowerCase()) // Split i konvertuj oba u mala slova
+      [ime, prezime]
     );
 
     if (results.length === 0) {
