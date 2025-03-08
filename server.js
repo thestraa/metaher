@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
 // API za prikazivanje pobeda
 app.get('/api/pobede', async (req, res) => {
   try {
-      const [rows] = await db.execute('SELECT zeleni, zuti FROM pobede');
+      const [rows] = await connection.execute('SELECT zeleni, zuti FROM pobede');
       res.json(rows[0]); 
   } catch (error) {
       console.error("Greška pri dohvaćanju pobeda:", error);
