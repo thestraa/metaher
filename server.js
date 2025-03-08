@@ -161,16 +161,18 @@ app.post('/api/glasanje', async (req, res) => {
 // Funkcija za pretragu takmičara po imenu i prezimenu
 async function getTakmicarByName(ime, prezime) {
   try {
-    const query = "SELECT * FROM takmicari WHERE ime = ? AND prezime = ?";
-    const [rows] = await connection.execute(query, [ime, prezime]);
+    // Convert parameters to lowercase and use LOWER() in SQL
+    const query = "SELECT * FROM takmicari WHERE LOWER(ime) = ? AND LOWER(prezime) = ?";
+    const [rows] = await connection.execute(query, [ime.toLowerCase(), prezime.toLowerCase()]);
     return rows.length > 0 ? rows[0] : null;
   } catch (err) {
     console.error("Greška pri pretrazi takmičara:", err);
     throw err;
   }
 }
+// API ruta za detalje o specifičnom takmičaru 
 app.get('/takmicar/:imePrezime', async (req, res) => {
-  const [ime, prezime] = req.params.imePrezime.split('-'); // Splits "Ivan-Pernjak" into ["Ivan", "Pernjak"]
+  const [ime, prezime] = req.params.imePrezime.split('-');
   try {
     const takmicar = await getTakmicarByName(ime, prezime);
     if (!takmicar) return res.status(404).json({ error: "Takmičar nije pronađen" });
@@ -178,4 +180,9 @@ app.get('/takmicar/:imePrezime', async (req, res) => {
   } catch (error) {
     res.status(404).json({ error: "Takmičar nije pronađen" });
   }
+});
+
+// Catch-all route (must come AFTER API routes)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
