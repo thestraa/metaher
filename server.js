@@ -142,46 +142,19 @@ app.post('/api/glasanje', async (req, res) => {
   }
 });
 
-// API ruta za detalje o specifičnom takmičaru 
-// app.get("/takmicar/:imePrezime", async (req, res) => {
-//   try {
-//     const imePrezime = req.params.imePrezime.replace('-', ' '); // Razmenjuje "-" sa razmakom
-//     const [results] = await connection.execute("SELECT * FROM takmicari WHERE CONCAT(ime, ' ', prezime) = ?", [imePrezime]);
 
-//     if (results.length === 0) {
-//       return res.status(404).json({ error: "Takmičar nije pronađen" });
-//     }
-
-//     res.json(results[0]); // Vraća podatke o takmičaru
-//   } catch (err) {
-//     console.error('Greška pri dohvatanju takmičara:', err);
-//     res.status(500).json({ error: 'Greška na serveru' });
-//   }
-// });
-// Funkcija za pretragu takmičara po imenu i prezimenu
-async function getTakmicarByName(ime, prezime) {
+app.get('/api/takmicar/:id', async (req, res) => {
   try {
-    const query = "SELECT * FROM takmicari WHERE LOWER(ime) = ? AND LOWER(prezime) = ?";
-    const [rows] = await connection.execute(query, [ime.toLowerCase(), prezime.toLowerCase()]);
-    return rows.length > 0 ? rows[0] : null;
+    const { id } = req.params;
+    const [results] = await connection.execute("SELECT * FROM takmicari WHERE id = ?", [id]);
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Takmičar nije pronađen" });
+    }
+
+    res.json(results[0]); // Vraća podatke o takmičaru
   } catch (err) {
-    console.error("Greška pri pretrazi takmičara:", err);
-    throw err;
+    console.error('Greška pri dohvatanju takmičara:', err);
+    res.status(500).json({ error: 'Greška na serveru' });
   }
-}
-// API ruta za detalje o specifičnom takmičaru 
-app.get('/api/takmicar/:imePrezime', async (req, res) => {
-  const [ime, prezime] = req.params.imePrezime.split('-');
-  try {
-    const takmicar = await getTakmicarByName(ime, prezime);
-    if (!takmicar) return res.status(404).json({ error: "Takmičar nije pronađen" });
-    res.json(takmicar);
-  } catch (error) {
-    res.status(404).json({ error: "Takmičar nije pronađen" });
-  }
-});
-
-// Catch-all route (must come AFTER all API routes)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
