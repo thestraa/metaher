@@ -30,6 +30,17 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// API za prikazivanje pobeda
+app.get('/api/pobede', async (req, res) => {
+  try {
+      const [rows] = await db.execute('SELECT zeleni, zuti FROM pobede');
+      res.json(rows[0]); 
+  } catch (error) {
+      console.error("Greška pri dohvaćanju pobeda:", error);
+      res.status(500).json({ error: 'Greška servera' });
+  }
+});
+
 // API za preuzimanje takmičara
 app.get("/api/takmicari", async (req, res) => {
   try {

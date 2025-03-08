@@ -711,6 +711,24 @@ td {
   opacity: 1;
   visibility: visible;
 }
+.pobede-container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin-top: 20px;
+}
+
+.pleme {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.pleme p {
+  font-size: 32px;
+  color: #FFD700; /* Zlatna boja za isticanje */
+}
+
 /* ADMIN PANEL */
 #dodajTakmicaraForm{
   content-visibility: hidden;

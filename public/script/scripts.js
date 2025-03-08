@@ -184,3 +184,19 @@ const pobedeZeleni = 1;  // Broj pobeda zelenih
 
 // Prikazivanje grafikona sa brojem pobeda
 prikaziGrafikon(pobedeZuti, pobedeZeleni);
+
+// Prikazivanje pobeda dinamicko
+async function prikaziPobede() {
+  try {
+      const response = await fetch('https://morning-taiga-69885-23caee796dab.herokuapp.com/api/pobede'); // Zameni sa pravim URL-om backenda
+      const data = await response.json();
+
+      document.getElementById('zeleni-pobede').textContent = data.zeleni;
+      document.getElementById('zuti-pobede').textContent = data.zuti;
+  } catch (error) {
+      console.error('Greška pri dohvaćanju pobeda:', error);
+  }
+}
+
+// Poziv funkcije nakon učitavanja stranice
+document.addEventListener('DOMContentLoaded', prikaziPobede);
