@@ -143,18 +143,27 @@ app.post('/api/glasanje', async (req, res) => {
 });
 
 // API ruta za detalje o specifičnom takmičaru 
-app.get("/takmicar/:imePrezime", async (req, res) => {
+// app.get("/takmicar/:imePrezime", async (req, res) => {
+//   try {
+//     const imePrezime = req.params.imePrezime.replace('-', ' '); // Razmenjuje "-" sa razmakom
+//     const [results] = await connection.execute("SELECT * FROM takmicari WHERE CONCAT(ime, ' ', prezime) = ?", [imePrezime]);
+
+//     if (results.length === 0) {
+//       return res.status(404).json({ error: "Takmičar nije pronađen" });
+//     }
+
+//     res.json(results[0]); // Vraća podatke o takmičaru
+//   } catch (err) {
+//     console.error('Greška pri dohvatanju takmičara:', err);
+//     res.status(500).json({ error: 'Greška na serveru' });
+//   }
+// });
+app.get('/takmicar/:imePrezime', async (req, res) => {
+  const imePrezime = req.params.imePrezime.replace(/([A-Z])/g, ' $1').trim(); // Vraća razmak između imena i prezimena
   try {
-    const imePrezime = req.params.imePrezime.replace('-', ' '); // Razmenjuje "-" sa razmakom
-    const [results] = await connection.execute("SELECT * FROM takmicari WHERE CONCAT(ime, ' ', prezime) = ?", [imePrezime]);
-
-    if (results.length === 0) {
-      return res.status(404).json({ error: "Takmičar nije pronađen" });
-    }
-
-    res.json(results[0]); // Vraća podatke o takmičaru
-  } catch (err) {
-    console.error('Greška pri dohvatanju takmičara:', err);
-    res.status(500).json({ error: 'Greška na serveru' });
+      const takmicar = await getTakmicarByName(imePrezime); // Ovaj metod treba da traži u formatu "Ivan Pernjak"
+      res.json(takmicar);
+  } catch (error) {
+      res.status(404).json({ error: "Takmičar nije pronađen" });
   }
 });
