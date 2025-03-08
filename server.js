@@ -55,6 +55,22 @@ app.get("/api/takmicari", async (req, res) => {
     res.status(500).json({ error: "Greška na serveru" });
   }
 });
+// API za preuzimanje takmičara - MODAL
+app.get('/api/takmicar/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [results] = await connection.execute("SELECT * FROM takmicari WHERE id = ?", [id]);
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Takmičar nije pronađen" });
+    }
+
+    res.json(results[0]); // Vraća podatke o takmičaru
+  } catch (err) {
+    console.error('Greška pri dohvatanju takmičara:', err);
+    res.status(500).json({ error: 'Greška na serveru' });
+  }
+});
 
 // Dodavanje takmičara
 app.post("/api/takmicari", async (req, res) => {
@@ -143,19 +159,8 @@ app.post('/api/glasanje', async (req, res) => {
   }
 });
 
-
-app.get('/api/takmicar/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const [results] = await connection.execute("SELECT * FROM takmicari WHERE id = ?", [id]);
-
-    if (results.length === 0) {
-      return res.status(404).json({ error: "Takmičar nije pronađen" });
-    }
-
-    res.json(results[0]); // Vraća podatke o takmičaru
-  } catch (err) {
-    console.error('Greška pri dohvatanju takmičara:', err);
-    res.status(500).json({ error: 'Greška na serveru' });
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api')) {  // Ako nije API zahtev, vrati index.html
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
   }
 });
