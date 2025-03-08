@@ -73,29 +73,19 @@ app.get("/api/takmicar/:id", async (req, res) => {
 });
 // API za preuzimanje takmičara po imenu i prezimenu
 // API za preuzimanje takmičara po imenu i prezimenu
-app.get("/api/takmicar/:imePrezime", async (req, res) => {
+app.get("/takmicar/:imePrezime", async (req, res) => {
   try {
-    // Dekodiraj imePrezime i zameni '-' sa razmakom
-    const imePrezime = decodeURIComponent(req.params.imePrezime.replace('-', ' '));
-    console.log("Ime i prezime iz URL-a:", imePrezime);
-
-    // Splituj ime i prezime i konvertuj oba u mala slova
-    const [ime, prezime] = imePrezime.split(' ').map(str => str.toLowerCase());
-
-    // SQL upit sa LOWER za oba imena i prezimena
-    const [results] = await connection.execute(
-      "SELECT * FROM takmicari WHERE LOWER(ime) = ? AND LOWER(prezime) = ?",
-      [ime, prezime]
-    );
+    const imePrezime = req.params.imePrezime.replace('-', ' '); // Razmenjuje "-" sa razmakom
+    const [results] = await connection.execute("SELECT * FROM takmicari WHERE CONCAT(ime, ' ', prezime) = ?", [imePrezime]);
 
     if (results.length === 0) {
       return res.status(404).json({ error: "Takmičar nije pronađen" });
     }
 
-    res.json(results[0]); // Vraća podatke o jednom takmičaru
+    res.json(results[0]); // Vraća podatke o takmičaru
   } catch (err) {
-    console.error("Greška pri dohvatanju takmičara:", err);
-    res.status(500).json({ error: "Greška na serveru" });
+    console.error('Greška pri dohvatanju takmičara:', err);
+    res.status(500).json({ error: 'Greška na serveru' });
   }
 });
 

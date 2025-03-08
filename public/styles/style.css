@@ -6,6 +6,8 @@
   --background-color: #1e1e1e; /* Tamna pozadina */
   --hover-color: #ffcc00; /* Svetlija žuta za hover efekte */
   --card-bg: rgba(255, 255, 255, 0.04); /* Blaga providnost na karticama */
+  --button-primary: #00360c;
+  --button-secondary: #f4b400;
 }
 
 
@@ -24,23 +26,6 @@ h1, h2, h3 {
 }
 h2 {
   font-size: 35px;
-}
-button {
-  background: var(--accent-color);
-  color: var(--primary-color);
-  padding: 12px 24px;
-  font-size: 18px;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-}
-
-button:hover {
-  background: var(--hover-color);
-  transform: scale(1.05);
-  box-shadow: 0 4px 10px rgba(230, 167, 0, 0.5);
 }
 
 @font-face {
@@ -65,7 +50,7 @@ button:hover {
 }
 
 .navbar.scrolled {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.66);
   height: 45px;
 }
 .logo {
@@ -125,7 +110,7 @@ button:hover {
       margin-top: -2px;
   }
   .navbar.scrolled .nav-links {
-    background: rgba(0, 0, 0, 0.2); /* Isti bg kada se skroluje */
+    background: rgba(0, 0, 0, 0.66); /* Isti bg kada se skroluje */
     transition: background 0.3s ease-in-out;
     z-index: 1000;
     top: 47px;
@@ -176,8 +161,28 @@ button:hover {
   .video-background{
     padding-top: 100%!important;
   }
+  .modal-content{
+    width: 70%!important;
+  }
+}
+.overlay button {
+  background: var(--accent-color);
+  color: var(--primary-color);
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
 }
 
+.overlay button:hover {
+  background: var(--button-primary);
+  color: var(--button-secondary);
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(230, 167, 0, 0.5);
+}
 .overlay h1 {
   font-family: "Capture It", sans-serif;
   font-size: 70px;
@@ -217,14 +222,7 @@ button:hover {
   color: #fff;
   text-align: center;
 }
-.overlay button {
-  padding: 10px 20px;
-  font-size: 1.2em;
-  cursor: pointer;
-  background-color: #ffcc00;
-  border: none;
-  border-radius: 5px;
-}
+
 .overlay button a{
     text-decoration: none;  /* Uklanja podvučenu liniju */
     color: inherit;         /* Nasleđuje boju teksta od roditelja (dugme) */
@@ -232,48 +230,6 @@ button:hover {
 
 }
 
-/* COUNTDOWN */
-@media screen and (max-width: 480px) {
-  .countdown {
-    font-size: 18px;
-    padding: 8px;
-    max-width: 90%;
-  }
-}
-.countdown {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.countdown-item {
-  background: var(--card-bg);
-  padding: 15px;
-  border-radius: 10px;
-  text-align: center;
-  min-width: 80px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.countdown-item span {
-  font-size: 32px;
-  font-weight: bold;
-  color: var(--accent-color);
-  display: block;
-}
-
-.countdown-item p {
-  margin: 5px 0 0;
-  font-size: 14px;
-  color: var(--text-color);
-  text-transform: uppercase;
-}
-
-/* TIMOVI */
-/* .takmicari-section{
-  padding: 50px 0;
-} */
 .container {
   max-width: 1200px;
   margin: 20px auto;
@@ -282,6 +238,9 @@ button:hover {
   gap: 20px;
 
 }
+
+/* TIMOVI / PLEMENA */
+
 .yellow-team-title {
   position: relative;
   display: inline-block; /* kako bi pseudo-element imao širinu teksta */
@@ -348,7 +307,8 @@ h4 {
 }
 .takmicari-section .card:hover {
   transform: translateY(-10px) scale(1.1); /* Veće uvećanje */
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4); /* Duboka senka */
+  background: rgb(34 34 34);
+  box-shadow: 0 20px 50px rgb(0, 0, 0); /* Duboka senka */
 }
 
 .takmicari-section .card img {
@@ -368,8 +328,113 @@ h4 {
   box-shadow: 0 10px 30px rgba(255, 255, 255, 0.5); /* Suptilna senka */
   border: 2px solid rgba(255, 255, 255, 0.8);
 }
+.share-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: white;
+  transition: transform 0.2s ease, color 0.2s ease;
+  z-index: 10; 
+}
+.takmicar button:hover {
+  transform: scale(1.2);
+  color: #f4b400;
+}
+.details-btn {
+  background-color: var(--button-secondary);
+  color: var(--button-primary);
+  font-family: 'Staatliches', sans-serif;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+.details-btn:hover {
+  background-color: var(--button-primary);
+  color: var(--button-secondary);
+  transform: scale(1.05); /* Blagi efekat povećanja */
+}
 
+.details-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: white; /* Boja ikone */
+}
+/* MODAL TAKMICARI*/
+.modal {
+  display: none;  /* Početno stanje je sakriven */
+  position: fixed;
+  z-index: 1;  /* Osigurajte da modal bude ispred drugih elemenata */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);  /* Poluproziran pozadinski sloj */
+}
+.modal-content {
+  background-color: rgb(27 61 36 / 95%);
+  border-radius: 20px;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50%;
+  position: relative;
+  padding-bottom: 60px;
+}
+/* Stilizacija slike */
+.modal-content img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 1px solid #f4b400;
+  object-fit: cover; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+.close-btn{
+  background: var(--button-secondary);
+  color: var(--button-primary);
+  cursor: pointer;
+  position: absolute;
+  position-area: center;
+  padding: 8px;
+  border-radius: 5px;
+  margin-top: auto;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+.modal-content h2{
+  color: var(--accent-color);
+  margin-bottom: 0px;
+}
+.modal-content h3 { 
+  border-bottom: 2px solid #ccc; /* Siva linija ispod zanimanja i godina */
+  padding-bottom: 5px; /* Malo prostora između linije i teksta ispod */
+  margin-bottom: 10px;
+}
+/* Stilizacija teksta unutar modala */
+.modal-content p {
+  color: #fff; /* White text */
+  font-size: 16px;
+  margin-bottom: 10px;
+}
 
+/* Stilizacija podataka u modalu */
+.modal-content p strong {
+  color: #f4b400; 
+}
+#modal-share-btn i:hover{
+  transform: scale(1.2);
+  color: #f4b400;
+}
+
+/* TABELA */
 .stats-table {
   width: 80%;
   margin: 30px auto;
@@ -387,8 +452,6 @@ h4 {
 .stats-table th {
   background-color: #62774d;
 }
-
-/* TABELA */
 .table-container {
   display: flex;
   justify-content: center; /* Centriranje */
@@ -643,23 +706,7 @@ canvas {
     color: white;
     background-color: red;
 }
-.modal {
-  display: none;  /* Početno stanje je sakriven */
-  position: fixed;
-  z-index: 1;  /* Osigurajte da modal bude ispred drugih elemenata */
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);  /* Poluproziran pozadinski sloj */
-}
-.modal-content {
-  background-color: rgb(0 255 67 / 20%);
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 50%;
-}
+
 .admin-tabela{
   margin-top: 50px;
   justify-self: center;
