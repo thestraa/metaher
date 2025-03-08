@@ -73,7 +73,7 @@ app.get("/api/takmicar/:id", async (req, res) => {
 });
 // API za preuzimanje takmičara po imenu i prezimenu
 // API za preuzimanje takmičara po imenu i prezimenu
-app.get("/takmicar/:imePrezime", async (req, res) => {
+app.get("/api/takmicar/:imePrezime", async (req, res) => {
   try {
     const imePrezime = req.params.imePrezime.replace('-', ' '); // Razmenjuje "-" sa razmakom
     const [results] = await connection.execute("SELECT * FROM takmicari WHERE CONCAT(ime, ' ', prezime) = ?", [imePrezime]);
