@@ -141,3 +141,22 @@ app.post('/api/glasanje', async (req, res) => {
     res.status(500).json({ success: false, message: 'Greška na serveru' });
   }
 });
+
+// Ruta za prikaz pojedinačnog takmičara -- MODAL
+app.get('/takmicar/:imePrezime', async (req, res) => {
+  try {
+    const imePrezime = req.params.imePrezime.replace('-', ' '); // Prebacuje "-" u razmak
+    const query = 'SELECT * FROM takmicari WHERE CONCAT(ime, " ", prezime) = ?';
+    const [result] = await connection.execute(query, [imePrezime]);
+
+    if (result.length === 0) {
+      return res.status(404).send('Takmičar nije pronađen');
+    }
+
+    // Vraća podatke o takmičaru
+    res.json(result[0]);
+  } catch (err) {
+    console.error("Greška pri dohvatanju takmičara:", err);
+    res.status(500).send("Greška na serveru");
+  }
+});
