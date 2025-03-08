@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function() {
             <h3>${takmicar.ime} ${takmicar.prezime}</h3>
             <p>Uspešnost u igrama:</p> 
             <p class="uspesnost">${uspesnost.toFixed(2)}%</p>
-            <button class="details-btn" data-takmicar='${JSON.stringify(takmicar)}'>Detalji</button>
+            <button class="details-btn" data-id="${takmicar.id}">Detalji</button>
             <button class="share-btn" data-name="${takmicar.ime} ${takmicar.prezime}"><i class="fas fa-share-alt"></i></button>
           `;
 
