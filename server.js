@@ -72,7 +72,7 @@ app.post("/api/takmicari", async (req, res) => {
   }
 });
 
-// Ažuriranje podataka
+// Ažuriranje takmičara
 app.put("/api/takmicari/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -91,7 +91,7 @@ app.put("/api/takmicari/:id", async (req, res) => {
   }
 });
 
-// Brisanje podataka
+// Brisanje takmičara
 app.delete("/api/takmicari/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -158,12 +158,27 @@ app.post('/api/glasanje', async (req, res) => {
 //     res.status(500).json({ error: 'Greška na serveru' });
 //   }
 // });
-app.get('/takmicar/:imePrezime', async (req, res) => {
-  const imePrezime = req.params.imePrezime.replace(/([A-Z])/g, ' $1').trim(); // Vraća razmak između imena i prezimena
+// Funkcija za pretragu takmičara po imenu i prezimenu
+async function getTakmicarByName(ime, prezime) {
   try {
-      const takmicar = await getTakmicarByName(imePrezime); // Ovaj metod treba da traži u formatu "Ivan Pernjak"
-      res.json(takmicar);
+    const query = "SELECT * FROM takmicari WHERE ime = ? AND prezime = ?";
+    const [rows] = await connection.execute(query, [ime, prezime]);
+    return rows.length > 0 ? rows[0] : null;
+  } catch (err) {
+    console.error("Greška pri pretrazi takmičara:", err);
+    throw err;
+  }
+}
+app.get('/takmicar/:imePrezime', async (req, res) => {
+  const [ime, prezime] = req.params.imePrezime.split('-'); // Razdvaja ime i prezime
+  try {
+    // Pretražuje bazu po imenu i prezimenu
+    const takmicar = await getTakmicarByName(ime, prezime);
+    if (!takmicar) {
+      return res.status(404).json({ error: "Takmičar nije pronađen" });
+    }
+    res.json(takmicar);
   } catch (error) {
-      res.status(404).json({ error: "Takmičar nije pronađen" });
+    res.status(404).json({ error: "Takmičar nije pronađen" });
   }
 });
