@@ -279,7 +279,7 @@ async function prikaziPobedes() {
       console.error('Greška pri dohvaćanju pobeda:', error);
   }
 }
-
+document.addEventListener('DOMContentLoaded', prikaziPobedes);
 //Modal za takmicare
 document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("takmicar-modal");
@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
       try {
         // Dohvati podatke sa servera za tog takmičara
-        const response = await fetch(`/takmicar/${imePrezime}`);
+        const response = await fetch(`/api/takmicar/${imePrezime}`);
         const takmicar = await response.json();
   
         // Ažuriraj modal sa podacima o takmičaru

@@ -71,6 +71,8 @@ app.get("/api/takmicar/:id", async (req, res) => {
     res.status(500).json({ error: "Greška na serveru" });
   }
 });
+
+
 // API za preuzimanje takmičara po imenu i prezimenu
 app.get('/api/takmicar/:imePrezime', async (req, res) => {
   const [ime, prezime] = req.params.imePrezime.split('-'); // Razdvaja ime i prezime
@@ -85,6 +87,17 @@ app.get('/api/takmicar/:imePrezime', async (req, res) => {
     res.status(404).json({ error: "Takmičar nije pronađen" });
   }
 });
+async function getTakmicarByName(ime, prezime) {
+  try {
+    const query = "SELECT * FROM takmicari WHERE LOWER(ime) = ? AND LOWER(prezime) = ?";
+    const [rows] = await connection.execute(query, [ime.toLowerCase(), prezime.toLowerCase()]);
+    return rows.length > 0 ? rows[0] : null;
+  } catch (err) {
+    console.error("Greška:", err);
+    throw err;
+  }
+}
+
 
 
 // Dodavanje takmičara
