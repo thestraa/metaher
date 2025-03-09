@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png" />
     <link rel="manifest" href="favicon/site.webmanifest" />
     <title>Admin Panel - Survivor</title>
-    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="../public/styles/style.css">
 </head>
 <body>
 
@@ -58,10 +58,11 @@
         <div class="modal-content">
             <span class="close" onclick="zatvoriModal()">&times;</span>
             <h2>Ažuriraj takmičara</h2>
+            <h3 id="modal-ime-prezime"></h3> <!-- Dodato ime i prezime ovde -->
             <input type="hidden" id="edit-id">
-            <input type="text" id="edit-ime" placeholder="Ime" required>
-            <input type="text" id="edit-prezime" placeholder="Prezime" required>
+            <label for="edit-ukupne-igre">Ukupne igre:</label>
             <input type="number" id="edit-ukupne-igre" placeholder="Ukupne igre">
+            <label for="edit-pobede">Pobede:</label>
             <input type="number" id="edit-pobede" placeholder="Pobede">
             <select id="edit-tim" required>
                 <option value="zeleniTim">Zeleni Tim</option>
@@ -71,6 +72,6 @@
         </div>
     </div>
 
-    <script src="script/admin.js"></script>
+    <script src="admin.js"></script>
 </body>
 </html>

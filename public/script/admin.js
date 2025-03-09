@@ -21,7 +21,8 @@ function ucitajTakmicare() {
             const sviTakmicari = [...data.zeleniTim, ...data.zutiTim];
 
             if (Array.isArray(sviTakmicari)) {
-                sviTakmicari.forEach(t => {
+                    sviTakmicari.forEach(t => {
+                        if (!t.u_igri) return;
                     const row = document.createElement("tr");
                     row.setAttribute("data-id", t.id);
 
@@ -116,13 +117,13 @@ function otvoriModal(id, ime, prezime, pobede, ukupne_igre, tim) {
         ukupne_igre: ukupne_igre,
         tim: tim
     });
-    
+
+    document.getElementById("modal-ime-prezime").textContent = `${ime} ${prezime}`; // Prikazuje ime i prezime u h3
     document.getElementById("edit-id").value = id;
-    document.getElementById("edit-ime").value = ime;
-    document.getElementById("edit-prezime").value = prezime;
     document.getElementById("edit-pobede").value = pobede;
     document.getElementById("edit-ukupne-igre").value = ukupne_igre;
     document.getElementById("edit-tim").value = tim;
+
     modal.style.display = "block";
 }
 
