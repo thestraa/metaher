@@ -55,25 +55,7 @@ app.get("/api/takmicari", async (req, res) => {
     res.status(500).json({ error: "Greška na serveru" });
   }
 });
-// // API za preuzimanje takmičara - MODAL
-// app.get("/api/takmicar/:id", async (req, res) => {
-//   const takmicarId = req.params.id;  // ID iz URL-a
-//   try {
-//     const [result] = await connection.execute("SELECT * FROM takmicari WHERE id = ?", [takmicarId]);
-    
-//     if (result.length === 0) {
-//       return res.status(404).json({ error: "Takmičar nije pronađen" });
-//     }
-
-//     res.json(result[0]);
-//   } catch (err) {
-//     console.error("Greška pri dohvatanju takmičara:", err);
-//     res.status(500).json({ error: "Greška na serveru" });
-//   }
-// });
-
-
-// API za preuzimanje takmičara po imenu i prezimenu
+//API za kreiranje URL-a
 app.get('/api/takmicar/:imePrezime', async (req, res) => {
   const [ime, prezime] = req.params.imePrezime.split('-');
   try {
@@ -98,9 +80,7 @@ async function getTakmicarByName(ime, prezime) {
   }
 }
 
-
-
-// Dodavanje takmičara
+// Dodavanje takmičara - ADMIN
 app.post("/api/takmicari", async (req, res) => {
   try {
     const { ime, prezime, pobede, ukupne_igre, tim } = req.body;
@@ -117,7 +97,7 @@ app.post("/api/takmicari", async (req, res) => {
   }
 });
 
-// Ažuriranje takmičara
+// Ažuriranje takmičara - ADMIN
 app.put("/api/takmicari/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -136,7 +116,7 @@ app.put("/api/takmicari/:id", async (req, res) => {
   }
 });
 
-// Brisanje takmičara
+// Brisanje takmičara - ADMIN
 app.delete("/api/takmicari/:id", async (req, res) => {
   try {
     const { id } = req.params;
