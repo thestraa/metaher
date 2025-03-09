@@ -55,36 +55,36 @@ app.get("/api/takmicari", async (req, res) => {
     res.status(500).json({ error: "Greška na serveru" });
   }
 });
-// API za preuzimanje takmičara - MODAL
-app.get("/api/takmicar/:id", async (req, res) => {
-  const takmicarId = req.params.id;  // ID iz URL-a
-  try {
-    const [result] = await connection.execute("SELECT * FROM takmicari WHERE id = ?", [takmicarId]);
+// // API za preuzimanje takmičara - MODAL
+// app.get("/api/takmicar/:id", async (req, res) => {
+//   const takmicarId = req.params.id;  // ID iz URL-a
+//   try {
+//     const [result] = await connection.execute("SELECT * FROM takmicari WHERE id = ?", [takmicarId]);
     
-    if (result.length === 0) {
-      return res.status(404).json({ error: "Takmičar nije pronađen" });
-    }
+//     if (result.length === 0) {
+//       return res.status(404).json({ error: "Takmičar nije pronađen" });
+//     }
 
-    res.json(result[0]);
-  } catch (err) {
-    console.error("Greška pri dohvatanju takmičara:", err);
-    res.status(500).json({ error: "Greška na serveru" });
-  }
-});
+//     res.json(result[0]);
+//   } catch (err) {
+//     console.error("Greška pri dohvatanju takmičara:", err);
+//     res.status(500).json({ error: "Greška na serveru" });
+//   }
+// });
 
 
 // API za preuzimanje takmičara po imenu i prezimenu
 app.get('/api/takmicar/:imePrezime', async (req, res) => {
-  const [ime, prezime] = req.params.imePrezime.split('-'); // Razdvaja ime i prezime
+  const [ime, prezime] = req.params.imePrezime.split('-');
   try {
-    // Pretražuje bazu po imenu i prezimenu
     const takmicar = await getTakmicarByName(ime, prezime);
     if (!takmicar) {
       return res.status(404).json({ error: "Takmičar nije pronađen" });
     }
     res.json(takmicar);
   } catch (error) {
-    res.status(404).json({ error: "Takmičar nije pronađen" });
+    console.error("Greška:", error);
+    res.status(500).json({ error: "Greška na serveru" });
   }
 });
 async function getTakmicarByName(ime, prezime) {
