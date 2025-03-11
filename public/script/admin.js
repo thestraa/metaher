@@ -25,27 +25,30 @@ function ucitajTakmicare() {
                         if (!t.u_igri) return;
                     const row = document.createElement("tr");
                     row.setAttribute("data-id", t.id);
+                    row.setAttribute("tim", t.tim)
+
+                    if(t.tim === "zuti"){
+                        row.classList.add("zuti")
+                    }
 
                     row.innerHTML = `
-                        <td>${t.id}</td>
-                        <td>${t.ime}</td>
-                        <td>${t.prezime}</td>
-                        <td>${t.ukupne_igre}</td>
-                        <td>${t.pobede}</td>
+                        <td class="id">${t.id}</td>
                         <td>${t.tim || "Nema tima"}</td>
-                        <td>
-                            <button id="updateButton-${t.id}">
-                                ✏ Ažuriraj
-                            </button>
-                            <button class="deltebtn" onclick="obrisiTakmicara(${t.id})">🗑 Obrisi</button>
+                        <td class="ime">${t.ime}</td>
+                        <td>${t.prezime}</td>
+                        <td class="ukupne-igre">
+                            <button class="plusIgre">+</button>
+                            <span class="brojUkupneIgre">${t.ukupne_igre}</span>
+                            <button class="minusIgre">-</button>
                         </td>
+                        <td class="pobede">
+                            <button class="plusPobeda">+</button>
+                            <span class="brojPobeda">${t.pobede}</span>
+                            <button class="minusPobeda">-</button>
+                        </td>
+                        
                     `;
                     listaTakmicara.appendChild(row);
-
-                    const updateButton = document.getElementById(`updateButton-${t.id}`);
-                    updateButton.addEventListener("click", function() {
-                        otvoriModal(t.id, t.ime, t.prezime, t.pobede, t.ukupne_igre, t.tim);
-                    });
                 });
             } else {
                 console.error("Očekivao se niz, ali je dobijen:", sviTakmicari);
@@ -54,126 +57,161 @@ function ucitajTakmicare() {
         .catch(err => console.error("Greška pri učitavanju takmičara:", err));
 }
 
-// Funkcija za dodavanje takmičara
-document.getElementById("dodajTakmicaraForm").addEventListener("submit", function(e) {
-    e.preventDefault();
+document.getElementById("listaTakmicara").addEventListener("click", function(event) {
+    console.log("Klik na dugme:", event.target);
+    let dugme = event.target;
+    let red = dugme.closest("tr");
+    if (!red) return; // Osigurava da postoji red
 
-    const ime = document.getElementById("ime").value;
-    const prezime = document.getElementById("prezime").value;
-    const pobede = document.getElementById("pobede").value || 0;
-    const ukupne_igre = document.getElementById("ukupne_igre").value || 0;
-    const tim = document.getElementById("tim").value;
-   
-    const takmicar = {
-        ime,
-        prezime,
-        pobede,
-        ukupne_igre,
-        tim // Dodajemo tim u telo zahteva
-    };
-    fetch(API_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"  // Pobrinite se da je Content-Type postavljen na JSON
-        },
-        body: JSON.stringify({
-            ime: ime,
-            prezime: prezime,
-            pobede: pobede,
-            ukupne_igre: ukupne_igre,
-            tim: tim
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Greška pri dodavanju takmičara');
+    let id = red.dataset.id;
+    let spanPobeda = red.querySelector(".brojPobeda");
+    let spanIgre = red.querySelector(".brojUkupneIgre");
+
+    if (dugme.classList.contains("plusIgre")) {
+        let trenutneIgre = parseInt(spanIgre.textContent, 10);
+        spanIgre.textContent = trenutneIgre + 1;
+        azurirajTakmicara(id, null, trenutneIgre + 1);
+    }
+
+    if (dugme.classList.contains("minusIgre")) {
+        let trenutneIgre = parseInt(spanIgre.textContent, 10);
+        if (trenutneIgre > 0) {
+            spanIgre.textContent = trenutneIgre - 1;
+            azurirajTakmicara(id, null, trenutneIgre - 1);
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Takmičar je uspešno dodat:", data);
-        ucitajTakmicare();  // Ponovno učitaj takmičare
-    })
-    .catch(err => {
-        console.error("Greška pri dodavanju:", err);
+    }
+
+    if (dugme.classList.contains("plusPobeda")) {
+        let trenutnePobede = parseInt(spanPobeda.textContent, 10);
+        spanPobeda.textContent = trenutnePobede + 1;
+        azurirajTakmicara(id, trenutnePobede + 1, null);
+    }
+
+    if (dugme.classList.contains("minusPobeda")) {
+        let trenutnePobede = parseInt(spanPobeda.textContent, 10);
+        if (trenutnePobede > 0) {
+            spanPobeda.textContent = trenutnePobede - 1;
+            azurirajTakmicara(id, trenutnePobede - 1, null);
+        }
+    }
 });
-});
-// Funkcija za brisanje takmičara
-function obrisiTakmicara(id) {
-    if (confirm("Da li ste sigurni da želite da obrišete takmičara?")) {
-        fetch(`${API_URL}/${id}`, { method: "DELETE" })
-            .then(() => ucitajTakmicare())
-            .catch(err => console.error("Greška pri brisanju:", err));
-    }
-}
-
-// Modified modal opening function to store original values
-function otvoriModal(id, ime, prezime, pobede, ukupne_igre, tim) {
-    const modal = document.getElementById("modal");
-    modal.dataset.originalData = JSON.stringify({
-        ime: ime,
-        prezime: prezime,
-        pobede: pobede,
-        ukupne_igre: ukupne_igre,
-        tim: tim
-    });
-
-    document.getElementById("modal-ime-prezime").textContent = `${ime} ${prezime}`; // Prikazuje ime i prezime u h3
-    document.getElementById("edit-id").value = id;
-    document.getElementById("edit-pobede").value = pobede;
-    document.getElementById("edit-ukupne-igre").value = ukupne_igre;
-    document.getElementById("edit-tim").value = tim;
-
-    modal.style.display = "block";
-}
-
-function zatvoriModal() {
-    document.getElementById("modal").style.display = "none";
-}
-
-// Modified sacuvajIzmene function with logging
-function sacuvajIzmene() {
-    const modal = document.getElementById("modal");
-    const originalData = JSON.parse(modal.dataset.originalData);
-    const { ime, prezime } = originalData; // Get player name
-    
-    const id = document.getElementById("edit-id").value;
-    const pobede = document.getElementById("edit-pobede").value;
-    const ukupne_igre = document.getElementById("edit-ukupne-igre").value;
 
 
-    // Build log message
-    const changes = [];
-    
-    if (originalData.ukupne_igre !== ukupne_igre) {
-        changes.push(`Ukupne igre sa ${originalData.ukupne_igre} na ${ukupne_igre}`);
+function azurirajTakmicara(id, promenaPobeda, promenaUkupneIgre) {
+    console.log("ID takmičara:", id);
+    console.log(`🔄 Ažuriram takmičara ${id} | Pobede: ${promenaPobeda}, Ukupne igre: ${promenaUkupneIgre}`);
+
+    let red = document.querySelector(`tr[data-id="${id}"]`);
+    if (!red) {
+        console.error("❌ Greška: Red za takmičara nije pronađen!");
+        return;
     }
 
-    if (originalData.pobede !== pobede) {
-        changes.push(`Pobede sa ${originalData.pobede} na ${pobede}`);
+    let imeTakmicara = red.querySelector(".ime").textContent.trim();
+    let pobedeEl = red.querySelector(".brojPobeda");
+    let ukupneIgreEl = red.querySelector(".brojUkupneIgre");
+
+    if (!pobedeEl || !ukupneIgreEl) {
+        console.error("❌ Greška: Nisu pronađene pobede ili ukupne igre!");
+        return;
     }
 
-    if (changes.length > 0) {
-        const message = `Igrač ${ime} ${prezime}: ${changes.join(', ')}`;
-        logUpdate(message);
+    let pobede = parseInt(pobedeEl.textContent);
+    let ukupneIgre = parseInt(ukupneIgreEl.textContent);
+
+    // Sprečavanje slanja undefined vrednosti
+    if (isNaN(pobede)) pobede = 0;
+    if (isNaN(ukupneIgre)) ukupneIgre = 0;
+
+    pobede = promenaPobeda !== null ? promenaPobeda : pobede;
+    ukupneIgre = promenaUkupneIgre !== null ? promenaUkupneIgre : ukupneIgre;
+
+    pobedeEl.textContent = pobede;
+    ukupneIgreEl.textContent = ukupneIgre;
+
+    if (promenaPobeda !== null) {
+        logUpdate(`${imeTakmicara}: Pobede ${promenaPobeda > 0 ? ":" : ""}${promenaPobeda}`);
+    }
+    if (promenaUkupneIgre !== null) {
+        logUpdate(`${imeTakmicara}: Ukupne igre ${promenaUkupneIgre > 0 ? ":" : ""}${promenaUkupneIgre}`);
     }
 
-    fetch(`${API_URL}/${id}`, {
+    // Šaljemo zahtev serveru
+    const body = JSON.stringify({ pobede, ukupne_igre: ukupneIgre });
+
+    console.log("🔵 Šaljem podatke:", body); // Debugging
+    console.log("🔄 Ažuriram:", { id, pobede, ukupneIgre });
+
+    fetch(`https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pobede, ukupne_igre, tim })
+        body
     })
-    .then(() => {
-        const red = document.querySelector(`tr[data-id="${id}"]`);
-        red.classList.remove("updated");
-        void red.offsetWidth;
-        red.classList.add("updated");
-        setTimeout(() => red.classList.remove("updated"), 7000);
-        ucitajTakmicare();
-        zatvoriModal();
-    })
-    .catch(err => console.error("Greška pri ažuriranju:", err));
+    .then(response => response.json())
+    .then(data => console.log("✅ Uspešno ažurirano:", data))
+    .catch(error => console.error("❌ Greška prilikom ažuriranja:", error));
 }
+// Pozovi funkciju posle učitavanja takmičara
 
-// Učitaj podatke na početku
 ucitajTakmicare();
+
+
+// function azurirajTakmicara(id, promenaPobeda, promenaUkupneIgre) {
+//     console.log("ID takmičara:", id);  // ✅ Provera ID-a
+
+//     // Pronađi red takmičara
+//     let red = document.querySelector(`tr[data-id="${id}"]`);
+//     if (!red) {
+//         console.error("❌ Greška: Red za takmičara nije pronađen!");
+//         return;
+//     }
+//     let imeTakmicara = red.querySelector(".ime").textContent.trim();
+//     // Pronađi pobede i ukupne igre
+//     let pobedeEl = red.querySelector(".pobede");
+//     let ukupneIgreEl = red.querySelector(".ukupne-igre");
+
+//     if (!pobedeEl || !ukupneIgreEl) {
+//         console.error("❌ Greška: Nisu pronađene pobede ili ukupne igre!");
+//         return;
+//     }
+
+//     console.log("Pobede:", pobedeEl.textContent, "Ukupne igre:", ukupneIgreEl.textContent);
+
+//     // Pretvori tekst u broj
+//     let pobede = parseInt(pobedeEl.textContent);
+//     let ukupneIgre = parseInt(ukupneIgreEl.textContent);
+
+//     // Ažuriraj vrednosti
+//     pobede += promenaPobeda;
+//     ukupneIgre += promenaUkupneIgre;
+
+//     // Postavi nove vrednosti u tabelu
+//     pobedeEl.textContent = pobede;
+//     ukupneIgreEl.textContent = ukupneIgre;
+//     let logPoruka = `${imeTakmicara}:`;
+
+//     if (promenaPobeda !== 0) {
+//         logPoruka += ` Pobede ${promenaPobeda > 0 ? "+" : ""}${promenaPobeda}, Ukupno pobeda: ${pobede}`;
+//     }
+
+//     if (promenaUkupneIgre !== 0) {
+//         logPoruka += `${promenaPobeda !== 0 ? "," : ""} Ukupne igre ${promenaUkupneIgre > 0 ? "+" : ""}${promenaUkupneIgre}, Ukupno: ${ukupneIgre}`;
+//     }
+
+//     // Pozivamo log funkciju samo ako ima promene
+//     if (promenaPobeda !== 0 || promenaUkupneIgre !== 0) {
+//         logUpdate(logPoruka);
+//     }
+
+//     // Pošalji PUT zahtev serveru
+//     fetch(`https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari/${id}`, {
+//         method: "PUT",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ pobede, ukupne_igre: ukupneIgre })
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         console.log("✅ Uspešno ažurirano:", data);
+//     })
+//     .catch(error => console.error("❌ Greška prilikom ažuriranja:", error));
+// }

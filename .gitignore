@@ -10,3 +10,5 @@ survivor_backend/mysql_data/
 # Build output
 dist/
 build/
+
+public/admin.html

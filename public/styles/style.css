@@ -683,13 +683,19 @@ canvas {
   max-height: 650px;   /* Fixed height */
   overflow-y: auto;    /* Enable vertical scrolling */
   border: 1px solid #ccc; /* Optional: Adds a border */
-  margin: 20px;
+  margin: 50px;
 }
 
 /* Ensure table columns align properly */
 .admin-tabela {
   table-layout: fixed; /* Prevents column misalignment */
   border-collapse: collapse;
+}
+.admin-tabela .id, .tim{
+  width:40px
+}
+.admin-tabela .zuti{
+  background-color: #e6a700b5;
 }
 
 /* Style for header and data cells */
@@ -710,7 +716,7 @@ canvas {
 .admin-tabela{
   margin-top: 50px;
   justify-self: center;
-  margin: auto 30px;
+  margin: auto 0px;
 }
 
 .close {
