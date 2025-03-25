@@ -1,17 +1,10 @@
 const API_URL = 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari';
+const API_POBEDE = "https://morning-taiga-69885-23caee796dab.herokuapp.com/api/pobede";
 
 // Modified log function to handle combined messages
-function logUpdate(message, tim) {
+function logUpdate(message) {
     const logList = document.getElementById('logList');
     const logEntry = document.createElement('li');
-    
-    // Dodavanje klase zavisno od tima
-    if (tim === "zuti") {
-        logEntry.classList.add("log-zuti");
-    } else if (tim === "zeleni") {
-        logEntry.classList.add("log-zeleni");
-    }
-
     logEntry.innerHTML = `
         <strong>[${new Date().toLocaleTimeString()}]</strong> 
         ${message}
@@ -66,9 +59,9 @@ function ucitajTakmicare() {
 }
 
 document.getElementById("listaTakmicara").addEventListener("click", function(event) {
-    console.log("Klik na dugme:", event.target);
     let dugme = event.target;
     let red = dugme.closest("tr");
+    let imeTakmicara = red.querySelector(".ime").textContent.trim();
     if (!red) return; // Osigurava da postoji red
 
     let id = red.dataset.id;
@@ -79,6 +72,7 @@ document.getElementById("listaTakmicara").addEventListener("click", function(eve
         let trenutneIgre = parseInt(spanIgre.textContent, 10);
         spanIgre.textContent = trenutneIgre + 1;
         azurirajTakmicara(id, null, trenutneIgre + 1);
+        logUpdate(`${imeTakmicara}: Ukupne Igre + 1,  Total: ${trenutneIgre + 1}`);
     }
 
     if (dugme.classList.contains("minusIgre")) {
@@ -86,6 +80,7 @@ document.getElementById("listaTakmicara").addEventListener("click", function(eve
         if (trenutneIgre > 0) {
             spanIgre.textContent = trenutneIgre - 1;
             azurirajTakmicara(id, null, trenutneIgre - 1);
+            logUpdate(`${imeTakmicara}: Ukupne Igre - 1,  Total: ${trenutneIgre - 1}`);
         }
     }
 
@@ -93,6 +88,7 @@ document.getElementById("listaTakmicara").addEventListener("click", function(eve
         let trenutnePobede = parseInt(spanPobeda.textContent, 10);
         spanPobeda.textContent = trenutnePobede + 1;
         azurirajTakmicara(id, trenutnePobede + 1, null);
+        logUpdate(`${imeTakmicara}: Pobede + 1,  Total: ${trenutnePobede + 1}`);
     }
 
     if (dugme.classList.contains("minusPobeda")) {
@@ -100,29 +96,19 @@ document.getElementById("listaTakmicara").addEventListener("click", function(eve
         if (trenutnePobede > 0) {
             spanPobeda.textContent = trenutnePobede - 1;
             azurirajTakmicara(id, trenutnePobede - 1, null);
+            logUpdate(`${imeTakmicara}: Pobede - 1,  Total: ${trenutnePobede - 1}`);
         }
     }
 });
 
 
-function azurirajTakmicara(id, promenaPobeda, promenaUkupneIgre) {
-    console.log("ID takmičara:", id);
-    console.log(`🔄 Ažuriram takmičara ${id} | Pobede: ${promenaPobeda}, Ukupne igre: ${promenaUkupneIgre}`);
+function azurirajTakmicara(id) {
 
     let red = document.querySelector(`tr[data-id="${id}"]`);
-    if (!red) {
-        console.error("❌ Greška: Red za takmičara nije pronađen!");
-        return;
-    }
 
-    let imeTakmicara = red.querySelector(".ime").textContent.trim();
     let pobedeEl = red.querySelector(".brojPobeda");
     let ukupneIgreEl = red.querySelector(".brojUkupneIgre");
 
-    if (!pobedeEl || !ukupneIgreEl) {
-        console.error("❌ Greška: Nisu pronađene pobede ili ukupne igre!");
-        return;
-    }
 
     let pobede = parseInt(pobedeEl.textContent);
     let ukupneIgre = parseInt(ukupneIgreEl.textContent);
@@ -131,24 +117,12 @@ function azurirajTakmicara(id, promenaPobeda, promenaUkupneIgre) {
     if (isNaN(pobede)) pobede = 0;
     if (isNaN(ukupneIgre)) ukupneIgre = 0;
 
-    pobede = promenaPobeda !== null ? promenaPobeda : pobede;
-    ukupneIgre = promenaUkupneIgre !== null ? promenaUkupneIgre : ukupneIgre;
-
     pobedeEl.textContent = pobede;
     ukupneIgreEl.textContent = ukupneIgre;
 
-    if (promenaPobeda !== null) {
-        logUpdate(`${imeTakmicara}: Pobede ${promenaPobeda > 0 ? "+" : ""}${promenaPobeda}`, red.getAttribute("tim"));
-    }
-    if (promenaUkupneIgre !== null) {
-        logUpdate(`${imeTakmicara}: Ukupne igre ${promenaUkupneIgre > 0 ? "+" : ""}${promenaUkupneIgre}`, red.getAttribute("tim"));
-    }
 
     // Šaljemo zahtev serveru
     const body = JSON.stringify({ pobede, ukupne_igre: ukupneIgre });
-
-    console.log("🔵 Šaljem podatke:", body); // Debugging
-    console.log("🔄 Ažuriram:", { id, pobede, ukupneIgre });
 
     fetch(`https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari/${id}`, {
         method: "PUT",
@@ -159,6 +133,53 @@ function azurirajTakmicara(id, promenaPobeda, promenaUkupneIgre) {
     .then(data => console.log("✅ Uspešno ažurirano:", data))
     .catch(error => console.error("❌ Greška prilikom ažuriranja:", error));
 }
-// Pozovi funkciju posle učitavanja takmičara
 
 ucitajTakmicare();
+
+
+function ucitajPobedeTimova() {
+    fetch(API_POBEDE)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("pobedeZeleni").textContent = data.zeleni;
+            document.getElementById("pobedeZuti").textContent = data.zuti;
+        })
+        .catch(err => console.error("Greška pri učitavanju pobeda timova:", err));
+}
+
+// function azurirajPobedeTimova(tim) {
+//     let pobedeEl = document.getElementById(tim === "zeleni" ? "pobedeZeleni" : "pobedeZuti");
+//     let novePobede = parseInt(pobedeEl.textContent, 10) + 1;
+//     pobedeEl.textContent = novePobede;
+
+//     fetch(API_POBEDE, {
+//         method: "PUT",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ [tim]: novePobede })
+//     })
+//     .then(res => res.json())
+//     .then(data => console.log(`✅ Ažurirane pobede za ${tim}:`, data))
+//     .catch(err => console.error(`❌ Greška pri ažuriranju pobeda za ${tim}:`, err));
+// }
+
+// document.getElementById("plusZeleni").addEventListener("click", () => azurirajPobedeTimova("zeleni"));
+// document.getElementById("plusZuti").addEventListener("click", () => azurirajPobedeTimova("zuti"));
+
+// Učitaj pobede kada se stranica otvori
+ucitajPobedeTimova();
+
+function dodajPobedu(tim) {
+    fetch('/api/pobede', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ tim }) // tim može biti "zeleni" ili "zuti"
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      location.reload(); // Osveži stranicu da prikaže nove podatke
+    })
+    .catch(error => console.error('Greška:', error));
+  }

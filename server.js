@@ -41,6 +41,27 @@ app.get('/api/pobede', async (req, res) => {
       res.status(500).json({ error: 'Greška servera' });
   }
 });
+app.put('/api/pobede', async (req, res) => {
+  const { tim } = req.body; // tim = 'zeleni' ili 'zuti'
+
+  if (tim !== 'zeleni' && tim !== 'zuti') {
+    return res.status(400).json({ error: "Neispravan naziv tima" });
+  }
+
+  try {
+    // Prvo dohvati trenutne vrednosti
+    const [rows] = await connection.execute('SELECT zeleni, zuti FROM pobede');
+    const trenutnaVrednost = rows[0][tim]; // Uzimamo vrednost za odabrani tim
+
+    // Ažuriraj vrednost u bazi (povećaj za 1)
+    await connection.execute(`UPDATE pobede SET ${tim} = ?`, [trenutnaVrednost + 1]);
+
+    res.json({ message: `Pobeda dodata za tim: ${tim}`, novaVrednost: trenutnaVrednost + 1 });
+  } catch (error) {
+    console.error("Greška pri ažuriranju pobeda:", error);
+    res.status(500).json({ error: "Greška servera" });
+  }
+});
 
 // API za preuzimanje takmičara
 app.get("/api/takmicari", async (req, res) => {
