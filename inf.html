@@ -1,0 +1,38 @@
+    <!-- Tabela sa takmičarima -->
+    <div class="admin-container">
+        <div class="admin-table-container">
+        <table class="admin-tabela">
+            <thead>
+                <tr>
+                    <th class="id">ID</th>
+                    <th class="tim">Tim</th>
+                    <th>Ime</th>
+                    <th>Prezime</th>
+                    <th>Ukupne Igre</th>
+                    <th>Pobede</th>
+                </tr>
+            </thead>
+            <tbody id="listaTakmicara">
+                <!-- Dinamički podaci će biti učitani ovde -->
+            </tbody>
+        </table>
+        </div>
+        
+        <div class="log-container">
+            <h3>Poslednje promjene</h3>
+            <ul id="logList"></ul>
+        </div>
+    </div>
+
+      <div id="timPobedeContainer">
+        <div class="tim-pobede">
+            <h3>Zeleni tim</h3>
+            <button class ="plusPobedaPleme" onclick="dodajPobedu('zeleni')">+</button>
+            <span id="pobede-zeleni">0</span>
+        </div>
+        <div class="tim-pobede">
+            <h3>Žuti tim</h3>
+            <button class ="plusPobedaPleme" onclick="dodajPobedu('zuti')">+</button>
+            <span id="pobede-zuti">0</span>
+        </div>
+    </div>

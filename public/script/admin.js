@@ -5,6 +5,7 @@ const API_POBEDE = "https://morning-taiga-69885-23caee796dab.herokuapp.com/api/p
 function logUpdate(message) {
     const logList = document.getElementById('logList');
     const logEntry = document.createElement('li');
+    logEntry.id = 'log-li'
     logEntry.innerHTML = `
         <strong>[${new Date().toLocaleTimeString()}]</strong> 
         ${message}
@@ -20,7 +21,7 @@ function ucitajTakmicare() {
             const listaTakmicara = document.getElementById("listaTakmicara");
             listaTakmicara.innerHTML = "";
             const sviTakmicari = [...data.zeleniTim, ...data.zutiTim];
-
+            
             if (Array.isArray(sviTakmicari)) {
                     sviTakmicari.forEach(t => {
                         if (!t.u_igri) return;
@@ -34,18 +35,18 @@ function ucitajTakmicare() {
 
                     row.innerHTML = `
                         <td class="id">${t.id}</td>
-                        <td>${t.tim || "Nema tima"}</td>
+                        <td class="tim">${t.tim || "Nema tima"}</td>
                         <td class="ime">${t.ime}</td>
                         <td>${t.prezime}</td>
                         <td class="ukupne-igre">
-                            <button class="plusIgre">+</button>
+                            <button class="plusIgre" data-tooltip="${t.ime}">+</button>
                             <span class="brojUkupneIgre">${t.ukupne_igre}</span>
-                            <button class="minusIgre">-</button>
+                            <button class="minusIgre" data-tooltip="${t.ime}">-</button>
                         </td>
                         <td class="pobede">
-                            <button class="plusPobeda">+</button>
+                            <button class="plusPobeda" data-tooltip="${t.ime}">+</button>
                             <span class="brojPobeda">${t.pobede}</span>
-                            <button class="minusPobeda">-</button>
+                            <button class="minusPobeda" data-tooltip="${t.ime}">-</button>
                         </td>
                         
                     `;
@@ -62,6 +63,7 @@ document.getElementById("listaTakmicara").addEventListener("click", function(eve
     let dugme = event.target;
     let red = dugme.closest("tr");
     let imeTakmicara = red.querySelector(".ime").textContent.trim();
+    let tim = red.querySelector(".tim").textContent.trim();
     if (!red) return; // Osigurava da postoji red
 
     let id = red.dataset.id;
@@ -99,6 +101,8 @@ document.getElementById("listaTakmicara").addEventListener("click", function(eve
             logUpdate(`${imeTakmicara}: Pobede - 1,  Total: ${trenutnePobede - 1}`);
         }
     }
+    const logEntry = document.getElementById('log-li');
+    logEntry.classList.add(`${tim}-log`)
 });
 
 
@@ -141,35 +145,17 @@ function ucitajPobedeTimova() {
     fetch(API_POBEDE)
         .then(res => res.json())
         .then(data => {
-            document.getElementById("pobedeZeleni").textContent = data.zeleni;
-            document.getElementById("pobedeZuti").textContent = data.zuti;
+            document.getElementById("pobede-zeleni").textContent = data.zeleni;
+            document.getElementById("pobede-zuti").textContent = data.zuti;
         })
         .catch(err => console.error("Greška pri učitavanju pobeda timova:", err));
 }
 
-// function azurirajPobedeTimova(tim) {
-//     let pobedeEl = document.getElementById(tim === "zeleni" ? "pobedeZeleni" : "pobedeZuti");
-//     let novePobede = parseInt(pobedeEl.textContent, 10) + 1;
-//     pobedeEl.textContent = novePobede;
 
-//     fetch(API_POBEDE, {
-//         method: "PUT",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({ [tim]: novePobede })
-//     })
-//     .then(res => res.json())
-//     .then(data => console.log(`✅ Ažurirane pobede za ${tim}:`, data))
-//     .catch(err => console.error(`❌ Greška pri ažuriranju pobeda za ${tim}:`, err));
-// }
-
-// document.getElementById("plusZeleni").addEventListener("click", () => azurirajPobedeTimova("zeleni"));
-// document.getElementById("plusZuti").addEventListener("click", () => azurirajPobedeTimova("zuti"));
-
-// Učitaj pobede kada se stranica otvori
 ucitajPobedeTimova();
 
 function dodajPobedu(tim) {
-    fetch('/api/pobede', {
+    fetch(API_POBEDE, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -179,7 +165,12 @@ function dodajPobedu(tim) {
     .then(response => response.json())
     .then(data => {
       console.log(data);
-      location.reload(); // Osveži stranicu da prikaže nove podatke
+      logUpdate(`Pobeda ${tim} + 1`)
+      const pobedeElement = document.getElementById(`pobede-${tim}`); 
+      if (pobedeElement) {
+        pobedeElement.textContent = data.novaVrednost; // Ažuriraj prikazanu vrednost
+      }
     })
     .catch(error => console.error('Greška:', error));
   }
+
