@@ -1,9 +1,17 @@
 const API_URL = 'https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari';
 
 // Modified log function to handle combined messages
-function logUpdate(message) {
+function logUpdate(message, tim) {
     const logList = document.getElementById('logList');
     const logEntry = document.createElement('li');
+    
+    // Dodavanje klase zavisno od tima
+    if (tim === "zuti") {
+        logEntry.classList.add("log-zuti");
+    } else if (tim === "zeleni") {
+        logEntry.classList.add("log-zeleni");
+    }
+
     logEntry.innerHTML = `
         <strong>[${new Date().toLocaleTimeString()}]</strong> 
         ${message}
@@ -130,10 +138,10 @@ function azurirajTakmicara(id, promenaPobeda, promenaUkupneIgre) {
     ukupneIgreEl.textContent = ukupneIgre;
 
     if (promenaPobeda !== null) {
-        logUpdate(`${imeTakmicara}: Pobede ${promenaPobeda > 0 ? ":" : ""}${promenaPobeda}`);
+        logUpdate(`${imeTakmicara}: Pobede ${promenaPobeda > 0 ? "+" : ""}${promenaPobeda}`, red.getAttribute("tim"));
     }
     if (promenaUkupneIgre !== null) {
-        logUpdate(`${imeTakmicara}: Ukupne igre ${promenaUkupneIgre > 0 ? ":" : ""}${promenaUkupneIgre}`);
+        logUpdate(`${imeTakmicara}: Ukupne igre ${promenaUkupneIgre > 0 ? "+" : ""}${promenaUkupneIgre}`, red.getAttribute("tim"));
     }
 
     // Šaljemo zahtev serveru
@@ -154,64 +162,3 @@ function azurirajTakmicara(id, promenaPobeda, promenaUkupneIgre) {
 // Pozovi funkciju posle učitavanja takmičara
 
 ucitajTakmicare();
-
-
-// function azurirajTakmicara(id, promenaPobeda, promenaUkupneIgre) {
-//     console.log("ID takmičara:", id);  // ✅ Provera ID-a
-
-//     // Pronađi red takmičara
-//     let red = document.querySelector(`tr[data-id="${id}"]`);
-//     if (!red) {
-//         console.error("❌ Greška: Red za takmičara nije pronađen!");
-//         return;
-//     }
-//     let imeTakmicara = red.querySelector(".ime").textContent.trim();
-//     // Pronađi pobede i ukupne igre
-//     let pobedeEl = red.querySelector(".pobede");
-//     let ukupneIgreEl = red.querySelector(".ukupne-igre");
-
-//     if (!pobedeEl || !ukupneIgreEl) {
-//         console.error("❌ Greška: Nisu pronađene pobede ili ukupne igre!");
-//         return;
-//     }
-
-//     console.log("Pobede:", pobedeEl.textContent, "Ukupne igre:", ukupneIgreEl.textContent);
-
-//     // Pretvori tekst u broj
-//     let pobede = parseInt(pobedeEl.textContent);
-//     let ukupneIgre = parseInt(ukupneIgreEl.textContent);
-
-//     // Ažuriraj vrednosti
-//     pobede += promenaPobeda;
-//     ukupneIgre += promenaUkupneIgre;
-
-//     // Postavi nove vrednosti u tabelu
-//     pobedeEl.textContent = pobede;
-//     ukupneIgreEl.textContent = ukupneIgre;
-//     let logPoruka = `${imeTakmicara}:`;
-
-//     if (promenaPobeda !== 0) {
-//         logPoruka += ` Pobede ${promenaPobeda > 0 ? "+" : ""}${promenaPobeda}, Ukupno pobeda: ${pobede}`;
-//     }
-
-//     if (promenaUkupneIgre !== 0) {
-//         logPoruka += `${promenaPobeda !== 0 ? "," : ""} Ukupne igre ${promenaUkupneIgre > 0 ? "+" : ""}${promenaUkupneIgre}, Ukupno: ${ukupneIgre}`;
-//     }
-
-//     // Pozivamo log funkciju samo ako ima promene
-//     if (promenaPobeda !== 0 || promenaUkupneIgre !== 0) {
-//         logUpdate(logPoruka);
-//     }
-
-//     // Pošalji PUT zahtev serveru
-//     fetch(`https://morning-taiga-69885-23caee796dab.herokuapp.com/api/takmicari/${id}`, {
-//         method: "PUT",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({ pobede, ukupne_igre: ukupneIgre })
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         console.log("✅ Uspešno ažurirano:", data);
-//     })
-//     .catch(error => console.error("❌ Greška prilikom ažuriranja:", error));
-// }
