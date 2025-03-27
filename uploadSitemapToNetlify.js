@@ -5,7 +5,7 @@ const path = require('path');
 async function uploadSitemapToNetlify() {
   try {
     // Putanja do generisanog sitemap-a
-    const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
+    const sitemapPath = path.join(__dirname, 'sitemap.xml');
     const sitemapContent = fs.readFileSync(sitemapPath, 'utf8');
 
     // URL Netlify Deploy Hook-a
