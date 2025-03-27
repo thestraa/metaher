@@ -220,6 +220,7 @@ app.get('/generate-sitemap', async (req, res) => {
 
     // Snimi sitemap.xml u fajl (ako je potrebno)
     const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
+    console.log(sitemap);
     fs.writeFileSync(sitemapPath, sitemap, 'utf8');
 
     // Pozovi funkciju da upload-uješ sitemap na Netlify
