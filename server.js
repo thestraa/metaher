@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const port = process.env.PORT || 3000; 
 const API_URL = process.env.API_URL || 'http://localhost:3000/api/takmicari';
+const uploadSitemapToNetlify = require('./uploadSitemapToNetlify');
 
 const pool = mysql.createPool({
   uri: process.env.DATABASE_URL,
@@ -133,7 +134,7 @@ app.put("/api/takmicari/:id", async (req, res) => {
 
     // Pozivanje API-ja za generisanje sitemap-a
     await fetch(`${API_URL}/generate-sitemap`);
-    
+
     res.json({ message: "Podaci ažurirani uspešno" });
   } catch (err) {
     console.error("Greška pri ažuriranju takmičara:", err);
@@ -191,7 +192,7 @@ app.post('/api/glasanje', async (req, res) => {
     res.status(500).json({ success: false, message: 'Greška na serveru' });
   }
 });
-//Sitemap
+// Sitemap Generacija
 app.get('/generate-sitemap', async (req, res) => {
   try {
     // Dohvati sve takmičare iz baze
@@ -217,16 +218,19 @@ app.get('/generate-sitemap', async (req, res) => {
     sitemap += `</urlset>`;
 
     // Snimi sitemap.xml u fajl (ako je potrebno)
-    const fs = require('fs');
     const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
     fs.writeFileSync(sitemapPath, sitemap, 'utf8');
 
-    res.status(200).send('Sitemap je uspešno generisan i sačuvan!');
+    // Pozovi funkciju da upload-uješ sitemap na Netlify
+    await uploadSitemapToNetlify();
+
+    res.status(200).send('Sitemap je uspešno generisan, sačuvan i upload-ovan na Netlify!');
   } catch (err) {
     console.error('Greška pri generisanju sitemap-a:', err);
     res.status(500).json({ error: 'Greška pri generisanju sitemap-a' });
   }
 });
+
 
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {  // Ako je API zahtev, nemoj slati index.html
