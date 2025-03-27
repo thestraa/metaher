@@ -130,6 +130,10 @@ app.put("/api/takmicari/:id", async (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Takmičar nije pronađen" });
     }
+
+    // Pozivanje API-ja za generisanje sitemap-a
+    await fetch(`${API_URL}/generate-sitemap`);
+    
     res.json({ message: "Podaci ažurirani uspešno" });
   } catch (err) {
     console.error("Greška pri ažuriranju takmičara:", err);
@@ -185,6 +189,42 @@ app.post('/api/glasanje', async (req, res) => {
     res.status(200).json({ success: true, message: 'Glas je uspešno zabeležen!', takmicar: takmicar[0] });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Greška na serveru' });
+  }
+});
+//Sitemap
+app.get('/generate-sitemap', async (req, res) => {
+  try {
+    // Dohvati sve takmičare iz baze
+    const [takmicari] = await connection.execute("SELECT * FROM takmicari");
+
+    // Počni sa osnovnim XML strukturama za sitemap
+    let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+
+    // Prolazi kroz sve takmičare i dodaj njihov URL u sitemap
+    takmicari.forEach((takmicar) => {
+      const takmicarUrl = `https://survivorstatistika.com/takmicar/${takmicar.ime.toLowerCase()}-${takmicar.prezime.toLowerCase()}`;
+      const lastModDate = new Date().toISOString().split('T')[0]; // Trenutni datum za lastmod
+
+      sitemap += `
+      <url>
+        <loc>${takmicarUrl}</loc>
+        <lastmod>${lastModDate}</lastmod>
+      </url>`;
+    });
+
+    // Zatvori XML tagove
+    sitemap += `</urlset>`;
+
+    // Snimi sitemap.xml u fajl (ako je potrebno)
+    const fs = require('fs');
+    const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
+    fs.writeFileSync(sitemapPath, sitemap, 'utf8');
+
+    res.status(200).send('Sitemap je uspešno generisan i sačuvan!');
+  } catch (err) {
+    console.error('Greška pri generisanju sitemap-a:', err);
+    res.status(500).json({ error: 'Greška pri generisanju sitemap-a' });
   }
 });
 
