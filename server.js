@@ -196,18 +196,19 @@ app.post('/api/glasanje', async (req, res) => {
 // Sitemap Generacija
 app.get('/generate-sitemap', async (req, res) => {
   try {
-    // Dohvati sve takmičare iz baze
+    console.log('Pokušavam da generišem sitemap...');
     const [takmicari] = await connection.execute("SELECT * FROM takmicari");
 
-    // Počni sa osnovnim XML strukturama za sitemap
-    let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+    if (!takmicari || takmicari.length === 0) {
+      console.error('Nema takmičara u bazi.');
+      return res.status(500).json({ error: 'Nema takmičara u bazi.' });
+    }
 
-    // Prolazi kroz sve takmičare i dodaj njihov URL u sitemap
+    let sitemap = `<?xml version="1.0" encoding="UTF-8"?> <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+
     takmicari.forEach((takmicar) => {
       const takmicarUrl = `https://survivorstatistika.com/takmicar/${takmicar.ime.toLowerCase()}-${takmicar.prezime.toLowerCase()}`;
-      const lastModDate = new Date().toISOString().split('T')[0]; // Trenutni datum za lastmod
-
+      const lastModDate = new Date().toISOString().split('T')[0];
       sitemap += `
       <url>
         <loc>${takmicarUrl}</loc>
@@ -215,17 +216,14 @@ app.get('/generate-sitemap', async (req, res) => {
       </url>`;
     });
 
-    // Zatvori XML tagove
     sitemap += `</urlset>`;
 
-    // Snimi sitemap.xml u fajl (ako je potrebno)
-    const sitemapPath = path.join(__dirname, 'sitemap.xml');
+    // Ako želiš da sačuvaš sitemap u fajl:
+    const path = require('path');
+    const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
     fs.writeFileSync(sitemapPath, sitemap, 'utf8');
 
-    // Pozovi funkciju da upload-uješ sitemap na Netlify
-    await uploadSitemapToNetlify();
-
-    res.status(200).send('Sitemap je uspešno generisan, sačuvan i upload-ovan na Netlify!');
+    res.status(200).send('Sitemap je uspešno generisan i sačuvan!');
   } catch (err) {
     console.error('Greška pri generisanju sitemap-a:', err);
     res.status(500).json({ error: 'Greška pri generisanju sitemap-a' });
