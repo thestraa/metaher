@@ -160,6 +160,15 @@ app.delete("/api/takmicari/:id", async (req, res) => {
   }
 });
 
+app.get('/api/statistika/:nedelja', async (req, res) => {
+  const { nedelja } = req.params;
+  const [rows] = await connection.execute(
+    'SELECT s.*, t.ime FROM statistika_nedelje s JOIN takmicari t ON s.takmicar_id = t.id WHERE s.nedelja = ?',
+    [nedelja]
+  );
+  res.json(rows);
+});
+
 // Glasanje
 app.post('/api/glasanje', async (req, res) => {
   try {
