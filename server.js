@@ -124,10 +124,10 @@ app.post("/api/takmicari", async (req, res) => {
 app.put("/api/takmicari/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { pobede, ukupne_igre } = req.body;
+    const { pobede, ukupne_igre, asistencije, asistencije_plus } = req.body;
 
-    const query = "UPDATE takmicari SET pobede = ?, ukupne_igre = ? WHERE id = ?";
-    const [result] = await connection.execute(query, [pobede, ukupne_igre, id]);
+    const query = "UPDATE takmicari SET pobede = ?, ukupne_igre = ?, asistencije = ?, asistencije_plus = ? WHERE id = ?";
+    const [result] = await connection.execute(query, [pobede, ukupne_igre, asistencije, asistencije_plus, id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Takmičar nije pronađen" });
