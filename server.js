@@ -168,7 +168,38 @@ app.get('/api/statistika/:nedelja', async (req, res) => {
   );
   res.json(rows);
 });
+// Ažuriranje takmičara nedeljna - ADMIN
+app.put('/api/nedeljne/:id', async (req, res) => {
+  const { ukupne_igre, pobede, asistencije, asistencije_plus } = req.body;
+  const { id } = req.params;
 
+  try {
+    await connection.execute(
+      `UPDATE nedeljne_statistike SET ukupne_igre = ?, pobede = ?, asistencije = ?, asistencije_plus = ? WHERE id = ?`,
+      [ukupne_igre, pobede, asistencije, asistencije_plus, id]
+    );
+    res.sendStatus(200);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+});
+// Ažuriranje takmičara dnevna - ADMIN
+app.put('/api/takmicari/dnevno/:id', async (req, res) => {
+  const { ukupne_igre_daily, pobede_daily, asistencije_daily, asistencije_plus_daily } = req.body;
+  const { id } = req.params;
+
+  try {
+    await connection.execute(
+      `UPDATE takmicari SET ukupne_igre_daily = ?, pobede_daily = ?, asistencije_daily = ?, asistencije_plus_daily = ? WHERE id = ?`,
+      [ukupne_igre_daily, pobede_daily, asistencije_daily, asistencije_plus_daily, id]
+    );
+    res.sendStatus(200);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+});
 // Glasanje
 app.post('/api/glasanje', async (req, res) => {
   try {
