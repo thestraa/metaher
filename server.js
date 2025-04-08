@@ -133,9 +133,6 @@ app.put("/api/takmicari/:id", async (req, res) => {
       return res.status(404).json({ error: "Takmičar nije pronađen" });
     }
 
-    // Pozivanje API-ja za generisanje sitemap-a
-    await fetch(`${API_URL}/generate-sitemap`);
-
     res.json({ message: "Podaci ažurirani uspešno" });
   } catch (err) {
     console.error("Greška pri ažuriranju takmičara:", err);
