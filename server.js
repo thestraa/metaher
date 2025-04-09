@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
 // API za prikazivanje pobeda
 app.get('/api/pobede', async (req, res) => {
   try {
-      const [rows] = await connection.execute('SELECT zeleni, zuti FROM pobede');
+      const [rows] = await connection.execute('SELECT zeleni, zuti, epizoda FROM pobede');
       res.json(rows[0]); 
   } catch (error) {
       console.error("Greška pri dohvaćanju pobeda:", error);
@@ -46,13 +46,13 @@ app.get('/api/pobede', async (req, res) => {
 app.put('/api/pobede', async (req, res) => {
   const { tim } = req.body; // tim = 'zeleni' ili 'zuti'
 
-  if (tim !== 'zeleni' && tim !== 'zuti') {
+  if (tim !== 'zeleni' && tim !== 'zuti' && tim !== 'epizoda') {
     return res.status(400).json({ error: "Neispravan naziv tima" });
   }
 
   try {
     // Prvo dohvati trenutne vrednosti
-    const [rows] = await connection.execute('SELECT zeleni, zuti FROM pobede');
+    const [rows] = await connection.execute('SELECT zeleni, zuti, epizoda FROM pobede');
     const trenutnaVrednost = rows[0][tim]; // Uzimamo vrednost za odabrani tim
 
     // Ažuriraj vrednost u bazi (povećaj za 1)
