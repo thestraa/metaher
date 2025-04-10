@@ -122,12 +122,21 @@ app.post("/api/takmicari", async (req, res) => {
 
 // Ažuriranje takmičara - ADMIN
 app.put("/api/takmicari/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { pobede, ukupne_igre, asistencije, asistencije_plus } = req.body;
+  const { id } = req.params;
+  const fields = req.body;
 
-    const query = "UPDATE takmicari SET pobede = ?, ukupne_igre = ?, asistencije = ?, asistencije_plus = ? WHERE id = ?";
-    const [result] = await connection.execute(query, [pobede, ukupne_igre, asistencije, asistencije_plus, id]);
+  if (!id || Object.keys(fields).length === 0) {
+    return res.status(400).json({ error: "Nedostaje ID ili podaci za ažuriranje" });
+  }
+
+  const setClause = Object.keys(fields).map(key => `${key} = ?`).join(", ");
+  const values = Object.values(fields);
+
+  try {
+    const [result] = await connection.execute(
+      `UPDATE takmicari SET ${setClause} WHERE id = ?`,
+      [...values, id]
+    );
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Takmičar nije pronađen" });
@@ -167,33 +176,47 @@ app.get('/api/statistika/:nedelja', async (req, res) => {
 });
 // Ažuriranje takmičara nedeljna - ADMIN
 app.put('/api/nedeljne/:id', async (req, res) => {
-  const { ukupne_igre, pobede, asistencije, asistencije_plus } = req.body;
   const { id } = req.params;
+  const fields = req.body;
+
+  if (!id || Object.keys(fields).length === 0) {
+    return res.status(400).send("Nedostaje ID ili podaci za ažuriranje");
+  }
+
+  const setClause = Object.keys(fields).map(key => `${key} = ?`).join(", ");
+  const values = Object.values(fields);
 
   try {
     await connection.execute(
-      `UPDATE nedeljne_statistike SET ukupne_igre = ?, pobede = ?, asistencije = ?, asistencije_plus = ? WHERE id = ?`,
-      [ukupne_igre, pobede, asistencije, asistencije_plus, id]
+      `UPDATE nedeljne_statistike SET ${setClause} WHERE id = ?`,
+      [...values, id]
     );
     res.sendStatus(200);
   } catch (err) {
-    console.error(err);
+    console.error("Greška pri ažuriranju nedeljnih podataka:", err);
     res.sendStatus(500);
   }
 });
 // Ažuriranje takmičara dnevna - ADMIN
 app.put('/api/takmicari/dnevno/:id', async (req, res) => {
-  const { ukupne_igre_daily, pobede_daily, asistencije_daily, asistencije_plus_daily } = req.body;
   const { id } = req.params;
+  const fields = req.body;
+
+  if (!id || Object.keys(fields).length === 0) {
+    return res.status(400).send("Nedostaje ID ili podaci za ažuriranje");
+  }
+
+  const setClause = Object.keys(fields).map(key => `${key} = ?`).join(", ");
+  const values = Object.values(fields);
 
   try {
     await connection.execute(
-      `UPDATE takmicari SET ukupne_igre_daily = ?, pobede_daily = ?, asistencije_daily = ?, asistencije_plus_daily = ? WHERE id = ?`,
-      [ukupne_igre_daily, pobede_daily, asistencije_daily, asistencije_plus_daily, id]
+      `UPDATE takmicari SET ${setClause} WHERE id = ?`,
+      [...values, id]
     );
     res.sendStatus(200);
   } catch (err) {
-    console.error(err);
+    console.error("Greška pri ažuriranju dnevnih podataka:", err);
     res.sendStatus(500);
   }
 });
