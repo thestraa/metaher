@@ -220,6 +220,23 @@ app.put('/api/takmicari/dnevno/:id', async (req, res) => {
     res.sendStatus(500);
   }
 });
+// Reset dnevne statistike svih takmičara
+app.post('/reset-dnevno', async (req, res) => {
+  try {
+    await db.query(`
+      UPDATE takmicari
+      SET 
+        ukupne_igre_daily = 0,
+        pobede_daily = 0,
+        asistencije_daily = 0,
+        asistencije_plus_daily = 0
+    `);
+    res.status(200).send("Reset uspešan");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Greška pri resetovanju");
+  }
+});
 // Glasanje
 app.post('/api/glasanje', async (req, res) => {
   try {
