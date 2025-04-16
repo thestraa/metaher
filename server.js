@@ -223,7 +223,7 @@ app.put('/api/takmicari/dnevno/:id', async (req, res) => {
 // Reset dnevne statistike svih takmičara
 app.post('/api/takmicari/reset-dnevno', async (req, res) => {
   try {
-    await db.query(`
+    await connection.execute(`
       UPDATE takmicari
       SET 
         ukupne_igre_daily = 0,
