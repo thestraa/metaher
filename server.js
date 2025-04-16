@@ -221,7 +221,7 @@ app.put('/api/takmicari/dnevno/:id', async (req, res) => {
   }
 });
 // Reset dnevne statistike svih takmičara
-app.post('/reset-dnevno', async (req, res) => {
+app.post('/api/takmicari/reset-dnevno', async (req, res) => {
   try {
     await db.query(`
       UPDATE takmicari
