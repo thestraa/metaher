@@ -8,7 +8,11 @@ app.use(cors());
 app.use(express.json());
 
 // Parsiramo DATABASE_URL
-const dbUrl = new URL(process.env.DATABASE_URL);
+if (!dbUrlString) {
+  console.error("❌ DATABASE_URL nije definisan!");
+  process.exit(1);
+}
+const dbUrl = new URL(dbUrlString);
 
 const pool = mysql.createPool({
   host: dbUrl.hostname,
