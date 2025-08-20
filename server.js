@@ -32,19 +32,21 @@ if (!dbUrlString) {
 }
 
 const dbUrl = new URL(dbUrlString);
-try{
-  const pool = mysql.createPool({
+let pool;
+
+try {
+  pool = mysql.createPool({
     host: dbUrl.hostname,
     user: dbUrl.username,
     password: dbUrl.password,
     database: dbUrl.pathname.replace("/", ""),
     port: dbUrl.port
   });
-    console.log("✅ Connected to MySQL");
-  } catch (err) {
-    console.error("❌ Database connection failed:", err);
-  }
 
+  console.log("✅ Connected to MySQL");
+} catch (err) {
+  console.error("❌ Database connection failed:", err);
+}
 
 const connection = pool.promise();
 
