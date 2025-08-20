@@ -7,5 +7,5 @@ connection.connect((err) => {
     console.error('Greška pri povezivanju sa bazom: ' + err.stack);
     return;
   }
-  console.log('Povezan sa bazom kao ID ' + connection.threadId);
+  console.log('Povezan sa bazom kao ID s' + connection.threadId);
 });
