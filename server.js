@@ -1,15 +1,12 @@
-import express from "express";
-import mysql from "mysql2/promise";
-import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
-
+const express = require("express");
+const mysql = require("mysql2/promise");
+const cors = require("cors");
 const app = express();
+const PORT = process.env.PORT || 5000;
+
 app.use(cors());
 app.use(express.json());
 
-// ✅ Povezivanje na Railway MySQL
 const dbUrlString = process.env.DATABASE_URL;
 
 if (!dbUrlString) {
@@ -30,9 +27,9 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-// ✅ Rute
-app.get("/", (req, res) => {
-  res.send("Server radi ✅");
+// Ruta za početnu stranicu
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 
