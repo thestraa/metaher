@@ -19,6 +19,11 @@ app.use(cors());
 app.use(express.json());
 
 // --- POVEZIVANJE NA Railway MYSQL preko DATABASE_URL ---
+const PORT = process.env.PORT || 3000; 
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
+
 const dbUrlString = process.env.DATABASE_URL;
 
 if (!dbUrlString) {
@@ -27,14 +32,19 @@ if (!dbUrlString) {
 }
 
 const dbUrl = new URL(dbUrlString);
+try{
+  const pool = mysql.createPool({
+    host: dbUrl.hostname,
+    user: dbUrl.username,
+    password: dbUrl.password,
+    database: dbUrl.pathname.replace("/", ""),
+    port: dbUrl.port
+  });
+    console.log("✅ Connected to MySQL");
+  } catch (err) {
+    console.error("❌ Database connection failed:", err);
+  }
 
-const pool = mysql.createPool({
-  host: dbUrl.hostname,
-  user: dbUrl.username,
-  password: dbUrl.password,
-  database: dbUrl.pathname.replace("/", ""),
-  port: dbUrl.port
-});
 
 const connection = pool.promise();
 
