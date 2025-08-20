@@ -1,10 +1,9 @@
 const express = require("express");
 const mysql = require("mysql2/promise"); // promise varijanta
-const dotenv = require("dotenv");
 const cors = require("cors");
 const { URL } = require("url");
 
-dotenv.config();
+
 
 const app = express();
 app.use(cors());
