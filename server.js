@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors"); 
 const path = require('path');
 const cookieParser = require('cookie-parser');
-const uploadSitemapToNetlify = require('./uploadSitemapToNetlify'); 
 const fs = require('fs');
 const app = express();
 const port = process.env.PORT || 3000; 
