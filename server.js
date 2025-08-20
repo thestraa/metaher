@@ -7,18 +7,20 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Parsiramo DATABASE_URL
+const dbUrlString = process.env.DATABASE_URL;
+
 if (!dbUrlString) {
   console.error("❌ DATABASE_URL nije definisan!");
   process.exit(1);
 }
+
 const dbUrl = new URL(dbUrlString);
 
 const pool = mysql.createPool({
   host: dbUrl.hostname,
   user: dbUrl.username,
   password: dbUrl.password,
-  database: dbUrl.pathname.replace("/", ""),
+  database: dbUrl.pathname.substring(1),
   port: dbUrl.port || 3306,
   waitForConnections: true,
   connectionLimit: 10,
