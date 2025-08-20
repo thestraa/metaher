@@ -1,7 +1,16 @@
+const mysql = require('mysql2');
 const express = require("express");
-const mysql = require("mysql2/promise"); // promise varijanta
-const cors = require("cors");
+const cors = require("cors"); 
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const fs = require('fs');
 const { URL } = require("url");
+
+
+
+
+// const mysql = require("mysql2/promise"); // promise varijanta
+
 
 
 
@@ -19,13 +28,15 @@ if (!dbUrlString) {
 
 const dbUrl = new URL(dbUrlString);
 
-const connection = mysql.createPool({
+const pool = mysql.createPool({
   host: dbUrl.hostname,
   user: dbUrl.username,
   password: dbUrl.password,
   database: dbUrl.pathname.replace("/", ""),
   port: dbUrl.port
 });
+
+const connection = pool.promise();
 
 // Ruta za početnu stranicu
 app.get('/', (req, res) => {
