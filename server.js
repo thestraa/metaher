@@ -1,4 +1,4 @@
-const mysql = require('mysql2');
+const mysql = require("mysql2/promise");
 const express = require("express");
 const cors = require("cors"); 
 const path = require('path');
@@ -6,16 +6,21 @@ const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const app = express();
 const port = process.env.PORT || 3000; 
-const API_URL = process.env.API_URL || 'http://localhost:3000/api/takmicari';
+
+const dbUrl = new URL(process.env.DATABASE_URL);
 
 const pool = mysql.createPool({
-  uri: process.env.DATABASE_URL,
+  host: dbUrl.hostname,
+  user: dbUrl.username,
+  password: dbUrl.password,
+  database: dbUrl.pathname.replace("/", ""),
+  port: dbUrl.port || 3306,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
 });
 
-const connection = pool.promise();
+module.exports = pool;
 
 app.listen(port, () => {
   console.log(`Server pokrenut na portu ${port}`);
