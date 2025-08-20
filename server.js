@@ -1,12 +1,16 @@
 const express = require("express");
-const mysql = require("mysql2/promise");
+const mysql = require("mysql2/promise"); // promise varijanta
+const dotenv = require("dotenv");
 const cors = require("cors");
-const app = express();
-const PORT = process.env.PORT || 5000;
+const { URL } = require("url");
 
+dotenv.config();
+
+const app = express();
 app.use(cors());
 app.use(express.json());
 
+// --- POVEZIVANJE NA Railway MYSQL preko DATABASE_URL ---
 const dbUrlString = process.env.DATABASE_URL;
 
 if (!dbUrlString) {
@@ -16,15 +20,12 @@ if (!dbUrlString) {
 
 const dbUrl = new URL(dbUrlString);
 
-const pool = mysql.createPool({
+const connection = mysql.createPool({
   host: dbUrl.hostname,
   user: dbUrl.username,
   password: dbUrl.password,
-  database: dbUrl.pathname.substring(1),
-  port: dbUrl.port || 3306,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
+  database: dbUrl.pathname.replace("/", ""),
+  port: dbUrl.port
 });
 
 // Ruta za početnu stranicu
