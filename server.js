@@ -1,30 +1,27 @@
-const mysql = require('mysql2');
 const express = require("express");
-const cors = require("cors"); 
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const fs = require('fs');
+const mysql = require("mysql2/promise");
+const cors = require("cors");
+require("dotenv").config();
+
 const app = express();
-const port = process.env.PORT || 3000; 
-const API_URL = process.env.API_URL || 'http://localhost:3000/api/takmicari';
-
-const pool = mysql.createPool({
-  uri: process.env.DATABASE_URL,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
-
-const connection = pool.promise();
-
-app.listen(port, () => {
-  console.log(`Server pokrenut na portu ${port}`);
-});
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Parsiramo DATABASE_URL
+const dbUrl = new URL(process.env.DATABASE_URL);
+
+const pool = mysql.createPool({
+  host: dbUrl.hostname,
+  user: dbUrl.username,
+  password: dbUrl.password,
+  database: dbUrl.pathname.replace("/", ""),
+  port: dbUrl.port || 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
 
 // Ruta za početnu stranicu
 app.get('/', (req, res) => {
