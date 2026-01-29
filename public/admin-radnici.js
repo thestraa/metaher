@@ -20,7 +20,6 @@ async function loadRadnici() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${r.ime} ${r.prezime}</td>
-      <td>${r.pozicija}</td>
       ${["ponedeljak","utorak","srijeda","cetvrtak","petak"]
         .map(d => `
           <td>
@@ -58,7 +57,6 @@ document.getElementById("radnik-form").addEventListener("submit", async e => {
     body: JSON.stringify({
       ime: ime.value,
       prezime: prezime.value,
-      pozicija: pozicija.value
     })
   });
   e.target.reset();

@@ -311,12 +311,12 @@ app.get("/api/radnici", async (req, res) => {
 });
 
 app.post("/api/radnici", async (req, res) => {
-  const { ime, prezime, pozicija } = req.body;
+  const { ime, prezime } = req.body;
 
   await connection.execute(
-    `INSERT INTO radnici (ime, prezime, pozicija)
+    `INSERT INTO radnici (ime, prezime)
      VALUES (?, ?, ?)`,
-    [ime, prezime, pozicija]
+    [ime, prezime]
   );
 
   res.status(201).json({ ok: true });
