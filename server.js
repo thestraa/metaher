@@ -1,6 +1,7 @@
 const mysql = require('mysql2');
 const express = require("express");
 const cors = require("cors");
+
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
@@ -8,16 +9,26 @@ const { URL } = require("url");
 
 
 
+
+// const mysql = require("mysql2/promise"); // promise varijanta
+
+
 app.use(cors({
-  origin: "*", // privremeno za demo
+  origin: [
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "https://survivorstatistika.com",
+    "https://web-production-46e9.up.railway.app"
+  ],
   methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
 }));
 
 const app = express();
 app.use(express.json());
 
 // --- POVEZIVANJE NA Railway MYSQL preko DATABASE_URL ---
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; 
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
 });
