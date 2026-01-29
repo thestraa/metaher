@@ -112,6 +112,37 @@ app.put("/api/radnici/:id", async (req, res) => {
   }
 });
 
+app.get("/api/radni-sati", async (req, res) => {
+  const { mjesec, period } = req.query;
+
+  const [rows] = await connection.execute(`
+    SELECT rs.*, r.ime, r.prezime
+    FROM radni_sati rs
+    JOIN radnici r ON r.id = rs.radnik_id
+    WHERE rs.mjesec = ? AND rs.period = ?
+  `, [mjesec, period]);
+
+  res.json(rows);
+});
+
+app.post("/api/radni-sati", async (req, res) => {
+  try {
+    const { radnik_id, mjesec, period, sati } = req.body;
+
+    await connection.execute(`
+      INSERT INTO radni_sati (radnik_id, mjesec, period, sati)
+      VALUES (?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        sati = VALUES(sati)
+    `, [radnik_id, mjesec, period, JSON.stringify(sati)]);
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Save failed" });
+  }
+});
+
 // API za prikazivanje pobeda
 app.get('/api/pobede', async (req, res) => {
   try {

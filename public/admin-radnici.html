@@ -2,56 +2,60 @@
 <html lang="sr">
 <head>
   <meta charset="UTF-8" />
-  <title>Admin Radnici</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin – Mjesečni plan</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
 
-<h2>Dodaj radnika</h2>
-<form id="radnik-form">
-  <input id="ime" placeholder="Ime" required>
-  <input id="prezime" placeholder="Prezime" required>
-  <button type="submit">Dodaj</button>
-</form>
+  <h1>Mjesečni plan sati</h1>
 
-<hr>
+  <div class="controls">
+    <label>Mjesec:</label>
+    <input type="month" id="mjesec" value="2026-01">
 
-<div class="admin-wrapper">
-
-  <div class="left">
-    <h2>Radni sati</h2>
-    <table class="sati-table">
-      <thead>
-        <tr>
-          <th>Ime i prezime</th>
-          <th>Ponedeljak</th>
-          <th>Utorak</th>
-          <th>Srijeda</th>
-          <th>Četvrtak</th>
-          <th>Petak</th>
-        </tr>
-      </thead>
-      <tbody id="sati-tabela"></tbody>
-    </table>
+    <label>Period:</label>
+    <select id="period">
+      <option value="1">01–14</option>
+      <option value="2">15–kraj</option>
+    </select>
   </div>
 
-  <div class="right">
-    <h2>Obračun</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Ime</th>
-          <th>Ukupno sati</th>
-          <th>Plata (€)</th>
-        </tr>
-      </thead>
-      <tbody id="obracun-tabela"></tbody>
-    </table>
+  <div class="add-worker">
+    <h3>Dodaj radnika</h3>
+    <form id="radnik-form">
+      <input id="ime" placeholder="Ime" required>
+      <input id="prezime" placeholder="Prezime" required>
+      <button type="submit">Dodaj</button>
+    </form>
   </div>
 
-</div>
+  <div class="admin-wrapper">
+    <div class="left">
+      <h2>Sati po danima</h2>
+      <div class="table-scroll">
+        <table class="sati-table">
+          <thead id="sati-head"></thead>
+          <tbody id="sati-body"></tbody>
+        </table>
+      </div>
+    </div>
 
-<script src="admin-radnici.js"></script>
+    <div class="right">
+      <h2>Obračun</h2>
+      <table class="obracun-table">
+        <thead>
+          <tr>
+            <th>Radnik</th>
+            <th>Ukupno</th>
+            <th>Plata (€)</th>
+          </tr>
+        </thead>
+        <tbody id="obracun-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="admin-mjesec.js"></script>
 </body>
 </html>
