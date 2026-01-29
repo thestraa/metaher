@@ -13,6 +13,9 @@ const { URL } = require("url");
 // const mysql = require("mysql2/promise"); // promise varijanta
 
 
+
+
+const app = express();
 app.use(cors({
   origin: [
     "http://127.0.0.1:5500",
@@ -23,8 +26,6 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
-
-const app = express();
 app.use(express.json());
 
 // --- POVEZIVANJE NA Railway MYSQL preko DATABASE_URL ---
