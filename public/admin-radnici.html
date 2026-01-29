@@ -1,0 +1,34 @@
+<h2>Dodaj radnika</h2>
+<form id="radnik-form">
+  <input id="ime" placeholder="Ime" required>
+  <input id="prezime" placeholder="Prezime" required>
+  <input id="pozicija" placeholder="Pozicija">
+  <button>Dodaj</button>
+</form>
+
+<hr>
+
+<h2>Radni sati</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>Ime</th><th>Pozicija</th>
+      <th>Pon</th><th>Uto</th><th>Sri</th><th>Čet</th><th>Pet</th>
+    </tr>
+  </thead>
+  <tbody id="sati-tabela"></tbody>
+</table>
+
+<h2>Obračun</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>Ime</th>
+      <th>Ukupno sati</th>
+      <th>Plata (€)</th>
+    </tr>
+  </thead>
+  <tbody id="obracun-tabela"></tbody>
+</table>
+
+<script src="admin-radnici.js"></script>

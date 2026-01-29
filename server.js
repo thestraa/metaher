@@ -293,6 +293,50 @@ app.post('/api/glasanje', async (req, res) => {
     res.status(500).json({ success: false, message: 'Greška na serveru' });
   }
 });
+
+
+
+app.get("/api/radnici", async (req, res) => {
+  const [rows] = await connection.execute("SELECT * FROM radnici");
+  res.json(rows);
+});
+
+app.post("/api/radnici", async (req, res) => {
+  const { ime, prezime, pozicija } = req.body;
+
+  await connection.execute(
+    `INSERT INTO radnici (ime, prezime, pozicija)
+     VALUES (?, ?, ?)`,
+    [ime, prezime, pozicija]
+  );
+
+  res.status(201).json({ ok: true });
+});
+
+
+app.put("/api/radnici/:id", async (req, res) => {
+  const { field, value } = req.body;
+
+  const allowed = [
+    "ponedeljak",
+    "utorak",
+    "srijeda",
+    "cetvrtak",
+    "petak"
+  ];
+
+  if (!allowed.includes(field)) {
+    return res.status(400).json({ error: "Nedozvoljeno polje" });
+  }
+
+  await connection.execute(
+    `UPDATE radnici SET ${field} = ? WHERE id = ?`,
+    [value, req.params.id]
+  );
+
+  res.json({ ok: true });
+});
+
 // Sitemap Generacija
 app.get('/generate-sitemap', async (req, res) => {
   try {
