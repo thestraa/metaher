@@ -2,7 +2,6 @@ const BASE = "https://web-production-46e9.up.railway.app";
 const API_RADNICI = `${BASE}/api/radnici`;
 const API_PLAN = `${BASE}/api/radni-sati`; // GET ?mjesec=&period=  | POST upsert
 
-const SATNICA = 5;
 
 const mjesecEl = document.getElementById("mjesec");
 const periodEl = document.getElementById("period");
@@ -53,12 +52,13 @@ function render() {
   const days = getDays(period, mjesec);
 
   // HEAD
-  headEl.innerHTML = `
+    headEl.innerHTML = `
     <tr>
-      <th class="sticky-col">Radnik</th>
-      ${days.map(d => `<th>${String(d).padStart(2, "0")}</th>`).join("")}
+        <th class="sticky-col">Radnik</th>
+        <th class="rate-col">Satnica (€)</th>
+        ${days.map(d => `<th>${String(d).padStart(2, "0")}</th>`).join("")}
     </tr>
-  `;
+    `;
 
   // BODY (sati)
   bodyEl.innerHTML = "";
@@ -67,25 +67,61 @@ function render() {
   radnici.forEach(r => {
     const sati = planMap.get(r.id) || {};
 
+    // enter za satnica
+        bodyEl.querySelectorAll(".rate-input").forEach(inp => {
+        inp.addEventListener("keydown", async (e) => {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+
+            const radnikId = Number(inp.dataset.radnik);
+            const value = Number(inp.value || 0);
+
+            try {
+            const res = await fetch(`${API_RADNICI}/${radnikId}/satnica`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ satnica: value })
+            });
+            if (!res.ok) throw new Error("Save satnica failed");
+
+            showNotification("Satnica sačuvana!", "success");
+            await refreshAll(); // da se odmah preračuna plata i osvježi
+            } catch (err) {
+            console.error(err);
+            showNotification("Greška pri čuvanju satnice", "error");
+            }
+        });
+        });
+
     // red lijevo
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="sticky-col name">${r.ime} ${r.prezime}</td>
-      ${days.map(d => {
-        const val = Number(sati[String(d)] ?? 0);
-        return `
-          <td>
-            <input type="number" min="0" max="24" value="${val}"
-              data-radnik="${r.id}" data-day="${d}">
-          </td>
-        `;
-      }).join("")}
+
+const tr = document.createElement("tr");
+tr.innerHTML = `
+  <td class="sticky-col name">${r.ime} ${r.prezime}</td>
+
+  <td class="rate-col">
+    <input class="rate-input" type="number" min="0" step="0.5" value="${satnica}"
+      data-radnik="${r.id}">
+  </td>
+
+  ${days.map(d => {
+    const val = Number((sati[String(d)] ?? 0));
+    return `
+      <td>
+        <input type="number" min="0" max="24" value="${val}"
+          inputmode="numeric"
+          data-radnik="${r.id}" data-day="${d}">
+      </td>
     `;
-    bodyEl.appendChild(tr);
+  }).join("")}
+`;
+bodyEl.appendChild(tr);
 
     // obračun desno
     const ukupno = days.reduce((sum, d) => sum + Number(sati[String(d)] ?? 0), 0);
-    const plata = ukupno * SATNICA;
+    const satnica = Number(r.satnica ?? 5);
+    const plata = ukupno * satnica;
+
 
     const obr = document.createElement("tr");
     obr.innerHTML = `
@@ -97,13 +133,35 @@ function render() {
   });
 
   // eventovi na inpute
-  bodyEl.querySelectorAll("input[type='number']").forEach(inp => {
-    inp.addEventListener("change", onInputChange);
-  });
+bodyEl.querySelectorAll("input[type='number']").forEach(inp => {
+  inp.addEventListener("keydown", onInputKeyDown);
+});
 }
 
-let saveTimer = null;
-async function onInputChange(e) {
+function showNotification(message, type) {
+  const notification = document.getElementById("notification");
+  if (!notification) return;
+
+  notification.style.backgroundColor = type === "success" ? "#22c55e" : "#ef4444";
+  notification.textContent = message;
+  notification.classList.add("show");
+
+  setTimeout(() => notification.classList.remove("show"), 2000);
+}
+
+function focusNextInput(currentInput) {
+  const inputs = Array.from(bodyEl.querySelectorAll("input[type='number']"));
+  const idx = inputs.indexOf(currentInput);
+  if (idx >= 0 && idx < inputs.length - 1) {
+    inputs[idx + 1].focus();
+    inputs[idx + 1].select();
+  }
+}
+
+async function onInputKeyDown(e) {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+
   const inp = e.target;
   const radnikId = Number(inp.dataset.radnik);
   const day = String(inp.dataset.day);
@@ -116,23 +174,26 @@ async function onInputChange(e) {
   current[day] = value;
   planMap.set(radnikId, current);
 
-  // mali debounce da ne spamujemo API dok kuca
-  if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    await fetch(API_PLAN, {
+  try {
+    const res = await fetch(API_PLAN, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        radnik_id: radnikId,
-        mjesec,
-        period,
-        sati: current
-      })
+      body: JSON.stringify({ radnik_id: radnikId, mjesec, period, sati: current })
     });
 
-    // rerender obračuna (najlakše za demo)
+    if (!res.ok) throw new Error("Save failed");
+
+    showNotification("Uspešno sačuvano!", "success");
+
+    // da obračun tabela osvježi iz planMap (najlakše)
     render();
-  }, 250);
+
+    // UX: idi na sljedeću ćeliju
+    focusNextInput(inp);
+  } catch (err) {
+    console.error(err);
+    showNotification("Greška pri čuvanju", "error");
+  }
 }
 
 async function refreshAll() {

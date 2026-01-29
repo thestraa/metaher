@@ -143,6 +143,15 @@ app.post("/api/radni-sati", async (req, res) => {
   }
 });
 
+app.put("/api/radnici/:id/satnica", async (req, res) => {
+  const { satnica } = req.body;
+  await connection.execute(
+    "UPDATE radnici SET satnica = ? WHERE id = ?",
+    [satnica, req.params.id]
+  );
+  res.json({ ok: true });
+});
+
 // API za prikazivanje pobeda
 app.get('/api/pobede', async (req, res) => {
   try {
