@@ -1,6 +1,10 @@
 const mysql = require('mysql2');
 const express = require("express");
-const cors = require("cors"); 
+const cors = require("cors");
+app.use(cors({
+  origin: "*", // privremeno za demo
+  methods: ["GET", "POST", "PUT", "DELETE"],
+})); 
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
@@ -15,16 +19,6 @@ const { URL } = require("url");
 
 
 const app = express();
-app.use(cors({
-  origin: [
-    "http://127.0.0.1:5500",
-    "http://localhost:5500",
-    "https://survivorstatistika.com",
-    "https://web-production-46e9.up.railway.app"
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
 app.use(express.json());
 
 // --- POVEZIVANJE NA Railway MYSQL preko DATABASE_URL ---
@@ -64,6 +58,48 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+
+app.get("/api/radnici", async (req, res) => {
+  try {
+    const [rows] = await connection.execute("SELECT * FROM radnici");
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "DB error" });
+  }
+});
+
+app.post("/api/radnici", async (req, res) => {
+  try {
+    const { ime, prezime, pozicija } = req.body;
+
+    await connection.execute(
+      "INSERT INTO radnici (ime, prezime, pozicija) VALUES (?, ?, ?)",
+      [ime, prezime, pozicija]
+    );
+
+    res.status(201).json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Insert failed" });
+  }
+});
+
+app.put("/api/radnici/:id", async (req, res) => {
+  try {
+    const { field, value } = req.body;
+
+    await connection.execute(
+      `UPDATE radnici SET ${field} = ? WHERE id = ?`,
+      [value, req.params.id]
+    );
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Update failed" });
+  }
+});
 
 // API za prikazivanje pobeda
 app.get('/api/pobede', async (req, res) => {
@@ -305,46 +341,6 @@ app.post('/api/glasanje', async (req, res) => {
 
 
 
-app.get("/api/radnici", async (req, res) => {
-  const [rows] = await connection.execute("SELECT * FROM radnici");
-  res.json(rows);
-});
-
-app.post("/api/radnici", async (req, res) => {
-  const { ime, prezime } = req.body;
-
-  await connection.execute(
-    `INSERT INTO radnici (ime, prezime)
-     VALUES (?, ?, ?)`,
-    [ime, prezime]
-  );
-
-  res.status(201).json({ ok: true });
-});
-
-
-app.put("/api/radnici/:id", async (req, res) => {
-  const { field, value } = req.body;
-
-  const allowed = [
-    "ponedeljak",
-    "utorak",
-    "srijeda",
-    "cetvrtak",
-    "petak"
-  ];
-
-  if (!allowed.includes(field)) {
-    return res.status(400).json({ error: "Nedozvoljeno polje" });
-  }
-
-  await connection.execute(
-    `UPDATE radnici SET ${field} = ? WHERE id = ?`,
-    [value, req.params.id]
-  );
-
-  res.json({ ok: true });
-});
 
 // Sitemap Generacija
 app.get('/generate-sitemap', async (req, res) => {
