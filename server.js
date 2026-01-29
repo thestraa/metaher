@@ -1,10 +1,6 @@
 const mysql = require('mysql2');
 const express = require("express");
 const cors = require("cors");
-app.use(cors({
-  origin: "*", // privremeno za demo
-  methods: ["GET", "POST", "PUT", "DELETE"],
-})); 
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
@@ -12,17 +8,16 @@ const { URL } = require("url");
 
 
 
-
-// const mysql = require("mysql2/promise"); // promise varijanta
-
-
-
+app.use(cors({
+  origin: "*", // privremeno za demo
+  methods: ["GET", "POST", "PUT", "DELETE"],
+}));
 
 const app = express();
 app.use(express.json());
 
 // --- POVEZIVANJE NA Railway MYSQL preko DATABASE_URL ---
-const PORT = process.env.PORT || 3000; 
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
 });
