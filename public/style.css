@@ -1,0 +1,69 @@
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+.admin-wrapper {
+  display: flex;
+  gap: 30px;
+  padding: 30px;
+}
+
+.left, .right {
+  background: #111827;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.left {
+  flex: 2;
+}
+
+.right {
+  flex: 1;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: #1f2933;
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+}
+
+td {
+  padding: 8px;
+  border-bottom: 1px solid #1f2933;
+}
+
+td.ime {
+  font-weight: 600;
+  color: #facc15; /* Survivor žuta */
+}
+
+input[type="number"] {
+  width: 60px;
+  background: #020617;
+  border: 1px solid #1f2933;
+  color: #e5e7eb;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+input[type="number"]:focus {
+  outline: none;
+  border-color: #22c55e;
+}
+
+.right td {
+  font-weight: 600;
+}
+
+.right td:last-child {
+  color: #22c55e;
+}

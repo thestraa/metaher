@@ -1,36 +1,57 @@
+<!DOCTYPE html>
+<html lang="sr">
 <head>
-    <title>Admin Radnici</title>
+  <meta charset="UTF-8" />
+  <title>Admin Radnici</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
+
 <h2>Dodaj radnika</h2>
 <form id="radnik-form">
   <input id="ime" placeholder="Ime" required>
   <input id="prezime" placeholder="Prezime" required>
-  <button>Dodaj</button>
+  <button type="submit">Dodaj</button>
 </form>
 
 <hr>
 
-<h2>Radni sati</h2>
-<table border="1">
-  <thead>
-    <tr>
-      <th>Pon</th><th>Uto</th><th>Sri</th><th>Čet</th><th>Pet</th>
-    </tr>
-  </thead>
-  <tbody id="sati-tabela"></tbody>
-</table>
+<div class="admin-wrapper">
 
-<h2>Obračun</h2>
-<table border="1">
-  <thead>
-    <tr>
-      <th>Ime</th>
-      <th>Ukupno sati</th>
-      <th>Plata (€)</th>
-    </tr>
-  </thead>
-  <tbody id="obracun-tabela"></tbody>
-</table>
-</body>
+  <div class="left">
+    <h2>Radni sati</h2>
+    <table class="sati-table">
+      <thead>
+        <tr>
+          <th>Ime i prezime</th>
+          <th>Ponedeljak</th>
+          <th>Utorak</th>
+          <th>Srijeda</th>
+          <th>Četvrtak</th>
+          <th>Petak</th>
+        </tr>
+      </thead>
+      <tbody id="sati-tabela"></tbody>
+    </table>
+  </div>
+
+  <div class="right">
+    <h2>Obračun</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Ime</th>
+          <th>Ukupno sati</th>
+          <th>Plata (€)</th>
+        </tr>
+      </thead>
+      <tbody id="obracun-tabela"></tbody>
+    </table>
+  </div>
+
+</div>
+
 <script src="admin-radnici.js"></script>
+</body>
+</html>

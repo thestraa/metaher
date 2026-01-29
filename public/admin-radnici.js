@@ -14,19 +14,29 @@ async function loadRadnici() {
   data.forEach(r => {
     const ukupno =
       r.ponedeljak + r.utorak + r.srijeda + r.cetvrtak + r.petak;
-    const plata = ukupno * SATNICA;
+    const plata = ukupno * 5; // SATNICA
 
     // Tabela sati
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${r.ime} ${r.prezime}</td>
-      ${["ponedeljak","utorak","srijeda","cetvrtak","petak"]
-        .map(d => `
-          <td>
-            <input type="number" value="${r[d]}"
-              onchange="updateSati(${r.id}, '${d}', this.value)">
-          </td>`).join("")}
-    `;
+const tr = document.createElement("tr");
+
+tr.innerHTML = `
+  <td class="ime">${r.ime} ${r.prezime}</td>
+
+  <td><input type="number" value="${r.ponedeljak}"
+      onchange="updateSati(${r.id}, 'ponedeljak', this.value)"></td>
+
+  <td><input type="number" value="${r.utorak}"
+      onchange="updateSati(${r.id}, 'utorak', this.value)"></td>
+
+  <td><input type="number" value="${r.srijeda}"
+      onchange="updateSati(${r.id}, 'srijeda', this.value)"></td>
+
+  <td><input type="number" value="${r.cetvrtak}"
+      onchange="updateSati(${r.id}, 'cetvrtak', this.value)"></td>
+
+  <td><input type="number" value="${r.petak}"
+      onchange="updateSati(${r.id}, 'petak', this.value)"></td>
+`;
     satiTabela.appendChild(tr);
 
     // Tabela obračuna

@@ -78,16 +78,20 @@ app.get("/api/radnici", async (req, res) => {
 
 app.post("/api/radnici", async (req, res) => {
   try {
-    const { ime, prezime, pozicija } = req.body;
+    const { ime, prezime } = req.body;
+
+    if (!ime || !prezime) {
+      return res.status(400).json({ error: "Nedostaju podaci" });
+    }
 
     await connection.execute(
-      "INSERT INTO radnici (ime, prezime, pozicija) VALUES (?, ?, ?)",
-      [ime, prezime, pozicija]
+      "INSERT INTO radnici (ime, prezime) VALUES (?, ?)",
+      [ime, prezime]
     );
 
     res.status(201).json({ ok: true });
   } catch (err) {
-    console.error(err);
+    console.error("INSERT RADNIK ERROR:", err);
     res.status(500).json({ error: "Insert failed" });
   }
 });
