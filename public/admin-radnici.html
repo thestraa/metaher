@@ -22,7 +22,7 @@
   </div>
 
   <div class="add-worker">
-    <h3>Dodaj radnika</h3>
+    <h3>Dodaj</h3>
     <form id="radnik-form">
       <input id="ime" placeholder="Ime" required>
       <input id="prezime" placeholder="Prezime" required>
@@ -42,11 +42,12 @@
     </div>
 
     <div class="right">
-      <h2>Obračun</h2>
+      <h2 id="obracun-title">Obračun</h2>
       <table class="obracun-table">
         <thead>
           <tr>
-            <th>Radnik</th>
+            <th>Ime i Prezime</th>
+            <th>Satnica (€)</th>
             <th>Ukupno</th>
             <th>Plata (€)</th>
           </tr>
@@ -55,7 +56,7 @@
       </table>
     </div>
   </div>
-  
+
 <div id="notification" class="notification"></div>
   <script src="admin-radnici.js"></script>
 </body>

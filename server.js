@@ -12,8 +12,8 @@ const { URL } = require("url");
 
 // const mysql = require("mysql2/promise"); // promise varijanta
 
-
-
+// za radnike dodata linija
+app.use(express.static(path.join(__dirname, 'public')));
 
 const app = express();
 app.use(cors({
@@ -431,11 +431,23 @@ app.get('/generate-sitemap', async (req, res) => {
 });
 
 
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api')) {  // Ako je API zahtev, nemoj slati index.html
-    return res.status(404).json({ error: 'API ruta nije pronađena' });
+// app.get('*', (req, res) => {
+//   if (req.path.startsWith('/api')) {  // Ako je API zahtev, nemoj slati index.html
+//     return res.status(404).json({ error: 'API ruta nije pronađena' });
+//   }
+
+//   // Za sve ostale rute, pošaljite index.html
+//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// });
+
+//nova ruta za radnike
+app.get('*', (req, res, next) => {
+  // Ako URL sadrži tačku (.html, .js, .css, .png itd)
+  // onda je to statički fajl i prepusti express.static da ga obradi
+  if (req.path.includes('.')) {
+    return next();
   }
 
-  // Za sve ostale rute, pošaljite index.html
+  // Ako nije fajl, onda šaljemo index.html (SPA fallback)
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
