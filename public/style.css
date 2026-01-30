@@ -370,3 +370,163 @@ hr{
     position: static;
   }
 }
+
+
+/* MODAL */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 9999;
+
+  /* blur + tamnjenje */
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-overlay.is-open {
+  display: flex;
+}
+
+.modal-card {
+  width: min(720px, 100%);
+  background: rgba(15, 23, 42, .65);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 20px 70px rgba(0,0,0,0.45);
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.modal-close:hover { background: rgba(255,255,255,0.10); }
+
+.wm-header {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding-right: 48px; /* da X ne upada */
+}
+
+.wm-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.10);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.wm-name {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.wm-meta {
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.wm-pill {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.wm-status {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.wm-rate {
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: 0.95;
+}
+
+.wm-stats {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stat {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.stat-label {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.stat-value {
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.wm-chart {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.wm-chart-title {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 10px;
+}
+
+.wm-chart-wrap {
+  width: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 720px) {
+  .wm-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.worker-name{
+  background:none;
+  border:none;
+  padding:0;
+  color:inherit;
+  cursor:pointer;
+  text-decoration: none;
+  text-underline-offset: 3px;
+  font-style: italic;
+  font-weight: 800;
+}
