@@ -12,8 +12,7 @@ const { URL } = require("url");
 
 // const mysql = require("mysql2/promise"); // promise varijanta
 
-// za radnike dodata linija
-app.use(express.static(path.join(__dirname, 'public')));
+
 
 const app = express();
 app.use(cors({
@@ -27,7 +26,8 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-
+// za radnike dodata linija
+app.use(express.static(path.join(__dirname, 'public')));
 // --- POVEZIVANJE NA Railway MYSQL preko DATABASE_URL ---
 const PORT = process.env.PORT || 3000; 
 app.listen(PORT, () => {
