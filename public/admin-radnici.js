@@ -8,6 +8,10 @@ const headEl = document.getElementById("sati-head");
 const bodyEl = document.getElementById("sati-body");
 const obracunBodyEl = document.getElementById("obracun-body");
 
+const statTotalHoursEl = document.getElementById("statTotalHours");
+const statTotalPayEl = document.getElementById("statTotalPay");
+const statAvgHoursEl = document.getElementById("statAvgHours");
+
 
 //modal 
 // ===== Worker Modal refs =====
@@ -55,6 +59,40 @@ function closeWorkerModal() {
   workerModal.setAttribute("aria-hidden", "true");
   if (wmChartWrap) wmChartWrap.innerHTML = "";
   setInsight("");
+}
+
+// ukupni izvjestaj
+function updateTopStats(){
+  if (!statTotalHoursEl || !statTotalPayEl || !statAvgHoursEl) return;
+
+  const n = radnici.length || 0;
+  if (!n) {
+    statTotalHoursEl.textContent = "0h";
+    statTotalPayEl.textContent = "0.00";
+    statAvgHoursEl.textContent = "0h";
+    return;
+  }
+
+  let totalHours = 0;
+  let totalPay = 0;
+
+  for (const r of radnici) {
+    const sati = planMap.get(Number(r.id)) || {};
+    const workerHours = currentDays.reduce(
+      (sum, d) => sum + Number(sati[String(d)] ?? 0),
+      0
+    );
+    const rate = Number(r.satnica ?? 5);
+
+    totalHours += workerHours;
+    totalPay += workerHours * rate;
+  }
+
+  const avgHours = totalHours / n;
+
+  statTotalHoursEl.textContent = `${totalHours.toFixed(2)}h`;
+  statTotalPayEl.textContent = totalPay.toFixed(2);
+  statAvgHoursEl.textContent = `${avgHours.toFixed(2)}h`;
 }
 
 let radnici = [];
@@ -402,7 +440,7 @@ async function saveDayIfChanged(inp) {
 
     // osvježi obračun samo za tog radnika
     updateObracunRow(radnikId);
-
+    updateTopStats();
     // notifikacija samo kad je stvarno sačuvano
     showNotification("Uspešno sačuvano!", "success");
     return true;
@@ -492,9 +530,11 @@ function render() {
       <td class="idx-col">${i + 1}</td>
       <td class="sticky-col name">
         <button type="button" class="worker-name" data-worker-id="${r.id}">
-            ${r.ime} ${r.prezime}
+          <div class="worker-name-main">${r.ime} ${r.prezime}</div>
+          <div class="worker-role-sub">${r.pozicija || ""}</div>
         </button>
       </td>
+
       ${days.map(d => {
         const key = String(d);
         const val = Number(sati[key] ?? 0);
@@ -542,6 +582,7 @@ function render() {
     attachSelectOnFocus(inp);
     inp.addEventListener("keydown", onRateKeyDown); 
   });
+  updateTopStats();
 }
 
 // ---------- Key handlers ----------
@@ -586,6 +627,7 @@ async function onRateKeyDown(e) {
     const next = inputs[nextIdx];
     next.focus();
     next.select();
+    updateTopStats();
     return;
   }
 
@@ -636,7 +678,8 @@ document.getElementById("radnik-form").addEventListener("submit", async (e) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       ime: document.getElementById("ime").value,
-      prezime: document.getElementById("prezime").value
+      prezime: document.getElementById("prezime").value,
+      pozicija: document.getElementById("pozicija").value
     })
   });
 
@@ -709,26 +752,37 @@ function getLastMonths(count){
   }
   return out;
 }
-async function fetchWorkerMonthTotal(radnikId, yyyyMm){
-  async function fetchPeriod(p){
-    const res = await fetch(`${API_PLAN}?mjesec=${yyyyMm}&period=${p}`);
-    if(!res.ok) return [];
+async function fetchWorkerMonthTotal(radnikId, yyyyMm) {
+  async function fetchPeriod(p) {
+    const res = await fetch(`${API_PLAN}?mjesec=${encodeURIComponent(yyyyMm)}&period=${p}`);
+    if (!res.ok) return [];
     return await res.json();
   }
 
   const [rows1, rows2] = await Promise.all([fetchPeriod(1), fetchPeriod(2)]);
-  const rows = [...rows1, ...rows2];
+  const all = [...rows1, ...rows2];
 
-  const row = rows.find(r => Number(r.radnik_id) === Number(radnikId));
-  if(!row) return 0;
+  // uzmi SVE redove za tog radnika (period 1 + period 2)
+  const matches = all.filter(r => Number(r.radnik_id) === Number(radnikId));
+  if (!matches.length) return 0;
 
-  let satiObj = row.sati;
-  if(typeof satiObj === "string"){
-    try{ satiObj = JSON.parse(satiObj); } catch { satiObj = {}; }
+  let total = 0;
+
+  for (const row of matches) {
+    let satiObj = row.sati;
+
+    if (typeof satiObj === "string") {
+      try { satiObj = JSON.parse(satiObj); }
+      catch { satiObj = {}; }
+    }
+
+    // saberemo sve dane iz tog perioda
+    total += Object.values(satiObj || {}).reduce((a, b) => a + Number(b || 0), 0);
   }
 
-  return Object.values(satiObj || {}).reduce((a,b)=>a+Number(b||0),0);
+  return total;
 }
+
 async function loadWorkerHistory(radnikId, satnica){
   if(!wmHistoryBody) return;
   wmHistoryBody.innerHTML = `<tr><td colspan="3" style="opacity:.7">Učitavam…</td></tr>`;

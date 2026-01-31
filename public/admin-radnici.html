@@ -27,8 +27,27 @@
     <form id="radnik-form">
       <input id="ime" placeholder="Ime" required>
       <input id="prezime" placeholder="Prezime" required>
+      <input id="pozicija" placeholder="Pozicija" required>
       <button type="submit">Dodaj</button>
     </form>
+  </div>
+
+<!-- ukupan izvjestaj -->
+  <div class="top-stats" id="topStats">
+    <div class="stat-card">
+      <div class="stat-label">Ukupno sati</div>
+      <div class="stat-value" id="statTotalHours">0h</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Ukupan trošak</div>
+      <div class="stat-value" id="statTotalPay">0.00</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Prosjek po radniku</div>
+      <div class="stat-value" id="statAvgHours">0h</div>
+    </div>
   </div>
 
   <div class="admin-wrapper">
