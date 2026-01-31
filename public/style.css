@@ -530,3 +530,196 @@ hr{
   font-style: italic;
   font-weight: 800;
 }
+
+.wm-rate {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.wm-rate-btn,
+.wm-rate-save,
+.wm-rate-cancel {
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.wm-rate-btn:hover,
+.wm-rate-save:hover,
+.wm-rate-cancel:hover { background: rgba(255,255,255,0.10); }
+
+.wm-rate-edit {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#wmRateInput {
+  width: 110px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(0,0,0,0.25);
+  color: #fff;
+  padding: 6px 10px;
+}
+
+.wm-insight{
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  font-size: 13px;
+  line-height: 1.35;
+  opacity: 0.95;
+}
+.wm-insight strong{ font-weight: 800; }
+
+/* modal istorija */
+
+.wm-history{
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.wm-history-title{
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 8px;
+}
+
+.wm-history-table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.wm-history-table th,
+.wm-history-table td{
+  padding: 6px 4px;
+  text-align: right;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.wm-history-table th:first-child,
+.wm-history-table td:first-child{
+  text-align: left;
+}
+
+
+.print-only { display: none; }
+
+@media print {
+  /* sakrij sve */
+  body * { visibility: hidden !important; }
+
+  /* prikaži samo plan */
+  #planPrintArea, #planPrintArea * { visibility: visible !important; }
+  #planPrintArea {
+    position: relative;
+    width: 100%;
+    font-size: 10px;
+    
+  }
+  @page {
+  size: A4 landscape;
+  margin: 8mm;
+  }
+
+ /* HEADER */
+  .print-header {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .print-company {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+
+  .print-subtitle {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  /* FOOTER */
+  .print-footer {
+    position: fixed;
+    bottom: 5mm;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  /* dugmad i UI kontrole */
+  .no-print { display: none !important; }
+  .print-only { display: block !important; margin: 0 0 10px 0; }
+
+  /* da scroll container ne reže tabelu */
+  .table-scroll { overflow: visible !important; max-height: none !important; }
+
+  /* tabela crno-bijelo */
+  .sati-table { border-collapse: collapse !important; width: 100% !important; }
+  .sati-table th, .sati-table td {
+    border: 1px solid #000 !important;
+    padding: 2px 3px !important;
+    font-size: 9px !important;
+    white-space: nowrap !important;
+    color: #000 !important;
+    background: #fff !important;
+  }
+    /* Suzi kolone dana */
+  .sati-table th {
+    text-align: center !important;
+  }
+
+  /* Ime kolona malo uža */
+  .sati-table td.name,
+  .sati-table th.name {
+    max-width: 120px !important;
+  }
+  .day-input{
+    width: 30px !important;
+    padding: 4px 5px !important;
+    font-size: 9px !important;
+  }
+  .input-active{
+    border: none !important;
+    box-shadow: none !important;
+    background: #fff !important;
+  }
+  .sticky-col{
+    max-width: 20px !important;
+  }
+  /* sticky kolone/hederi u printu znaju praviti problem */
+  .sticky-col, thead th.sticky-col { position: static !important; }
+
+  tr { page-break-inside: avoid; }
+}
+.left-header{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#btnPrintPlan{
+  border:1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color:#fff;
+  border-radius:10px;
+  padding:6px 10px;
+  cursor:pointer;
+}
+#btnPrintPlan:hover{ background: rgba(255,255,255,0.10); }

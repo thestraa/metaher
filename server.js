@@ -78,15 +78,15 @@ app.get("/api/radnici", async (req, res) => {
 
 app.post("/api/radnici", async (req, res) => {
   try {
-    const { ime, prezime } = req.body;
+    const { ime, prezime, pozicija } = req.body;
 
     if (!ime || !prezime) {
       return res.status(400).json({ error: "Nedostaju podaci" });
     }
 
     await connection.execute(
-      "INSERT INTO radnici (ime, prezime) VALUES (?, ?)",
-      [ime, prezime]
+      "INSERT INTO radnici (ime, prezime, pozicija) VALUES (?, ?, ?)",
+      [ime, prezime, pozicija || null]
     );
 
     res.status(201).json({ ok: true });
@@ -95,6 +95,7 @@ app.post("/api/radnici", async (req, res) => {
     res.status(500).json({ error: "Insert failed" });
   }
 });
+
 
 app.put("/api/radnici/:id", async (req, res) => {
   try {

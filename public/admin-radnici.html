@@ -8,7 +8,7 @@
 </head>
 <body>
 
-  <h1>Mjesečni plan sati</h1>
+  <h1>Evidencija Radnih Sati - Gradiliste 1</h1>
 
   <div class="controls">
     <label>Mjesec:</label>
@@ -16,11 +16,12 @@
 
     <label>Period:</label>
     <select id="period">
-      <option value="1">01–14</option>
-      <option value="2">15–kraj</option>
+    <option value="0">01 - kraj mjeseca</option>
+    <option value="1">01 - 14</option>
+    <option value="2">15 - kraj mjeseca</option>
     </select>
   </div>
-
+  
   <div class="add-worker">
     <h3>Dodaj</h3>
     <form id="radnik-form">
@@ -31,13 +32,29 @@
   </div>
 
   <div class="admin-wrapper">
-    <div class="left">
-      <h2>Sati po danima</h2>
+    <div class ="left" id="planPrintArea">
+
+      <!-- PRINT HEADER -->
+      <div class="print-header print-only">
+        <div class="print-company">NAZIV FIRME D.O.O.</div>
+        <div id="printTitle" class="print-subtitle"></div>
+      </div>
+
+      <div class="left-header no-print">
+        <h2>Sati po danima</h2>
+        <button id="btnPrintPlan" type="button">Štampaj</button>
+      </div>
+
       <div class="table-scroll">
         <table class="sati-table">
           <thead id="sati-head"></thead>
           <tbody id="sati-body"></tbody>
         </table>
+      </div>
+
+      <!-- PRINT FOOTER -->
+      <div class="print-footer print-only">
+        NAZIV FIRME D.O.O.
       </div>
     </div>
 
@@ -75,7 +92,16 @@
         </div>
         <div class="wm-rate">
           Satnica (obračun): <strong id="wmRate">—</strong>
+
+          <button type="button" class="wm-rate-btn" id="wmEditRateBtn">Promijeni</button>
+
+          <div class="wm-rate-edit" id="wmRateEdit" hidden>
+            <input id="wmRateInput" type="number" min="0" step="0.25" inputmode="decimal" />
+            <button type="button" class="wm-rate-save" id="wmRateSaveBtn">Sačuvaj</button>
+            <button type="button" class="wm-rate-cancel" id="wmRateCancelBtn">Otkaži</button>
+          </div>
         </div>
+
       </div>
     </div>
 
@@ -96,12 +122,28 @@
         <div class="stat-label">Radnih dana</div>
         <div class="stat-value" id="wmWorkDays">—</div>
       </div>
+      <div id="wmInsight" class="wm-insight" hidden></div>
     </div>
 
     <div class="wm-chart">
       <div class="wm-chart-title">Sati po danima</div>
       <div id="wmChartWrap" class="wm-chart-wrap">
         <!-- SVG chart ide ovdje -->
+      </div>
+    </div>
+    <div class="wm-history">
+      <div class="wm-history-title">Istorija po mjesecima</div>
+      <div class="wm-history-wrap">
+        <table class="wm-history-table">
+          <thead>
+            <tr>
+              <th>Mjesec</th>
+              <th>Sati</th>
+              <th>Iznos</th>
+            </tr>
+          </thead>
+          <tbody id="wmHistoryBody"></tbody>
+        </table>
       </div>
     </div>
   </div>

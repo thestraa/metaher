@@ -27,6 +27,17 @@ const wmWorkDays = document.getElementById("wmWorkDays");
 
 const wmChartWrap = document.getElementById("wmChartWrap");
 
+const wmEditRateBtn = document.getElementById("wmEditRateBtn");
+const wmRateEdit = document.getElementById("wmRateEdit");
+const wmRateInput = document.getElementById("wmRateInput");
+const wmRateSaveBtn = document.getElementById("wmRateSaveBtn");
+const wmRateCancelBtn = document.getElementById("wmRateCancelBtn");
+const wmInsight = document.getElementById("wmInsight");
+const wmHistoryBody = document.getElementById("wmHistoryBody");
+
+let modalWorkerId = null;
+let modalTotalHours = 0; // da možemo odmah preračunati platu u modalu
+
 function openWorkerModal() {
   if (!workerModal) return;
   workerModal.classList.add("is-open");
@@ -35,10 +46,15 @@ function openWorkerModal() {
 }
 
 function closeWorkerModal() {
+
+  modalWorkerId = null;
+  modalTotalHours = 0;
+  setRateEditMode(false);
   if (!workerModal) return;
   workerModal.classList.remove("is-open");
   workerModal.setAttribute("aria-hidden", "true");
   if (wmChartWrap) wmChartWrap.innerHTML = "";
+  setInsight("");
 }
 
 let radnici = [];
@@ -55,9 +71,21 @@ const savingCells = new Set();   // da ne dupliramo save dok brzo stišćeš str
 function getDays(period, yyyyMm) {
   const [y, m] = yyyyMm.split("-").map(Number);
   const lastDay = new Date(y, m, 0).getDate();
-  if (Number(period) === 1) return Array.from({ length: 14 }, (_, i) => i + 1);
+
+  if (Number(period) === 0) {
+    // 01 -> kraj mjeseca
+    return Array.from({ length: lastDay }, (_, i) => i + 1);
+  }
+
+  if (Number(period) === 1) {
+    // 01 -> 14
+    return Array.from({ length: 14 }, (_, i) => i + 1);
+  }
+
+  // 15 -> kraj
   return Array.from({ length: lastDay - 14 }, (_, i) => i + 15);
 }
+
 
 function formatDateSR(d) {
   const dd = String(d.getDate()).padStart(2, "0");
@@ -71,8 +99,13 @@ function updateObracunTitle() {
   const period = Number(periodEl.value);
   const [y, m] = mjesec.split("-").map(Number);
 
-  const startDay = period === 1 ? 1 : 15;
-  const endDay = period === 1 ? 14 : new Date(y, m, 0).getDate();
+  const lastDay = new Date(y, m, 0).getDate();
+
+  let startDay, endDay;
+  if (period === 0) { startDay = 1; endDay = lastDay; }
+  else if (period === 1) { startDay = 1; endDay = 14; }
+  else { startDay = 15; endDay = lastDay; }
+
 
   const start = new Date(y, m - 1, startDay);
   const end = new Date(y, m - 1, endDay);
@@ -170,6 +203,9 @@ function openWorkerCard(workerId) {
   const sati = planMap.get(Number(workerId)) || {};
 
   const totalHours = currentDays.reduce((sum, d) => sum + Number(sati[String(d)] ?? 0), 0);
+  modalWorkerId = Number(workerId);
+  modalTotalHours = totalHours;
+  setRateEditMode(false);
   const workDays = currentDays.reduce((cnt, d) => cnt + ((Number(sati[String(d)] ?? 0) > 0) ? 1 : 0), 0);
 
   const satnica = Number(r.satnica ?? 5);
@@ -177,6 +213,22 @@ function openWorkerCard(workerId) {
 
   // Za sada overtime = 0 (dok ne uvedemo pravila)
   const overtimeHours = 0;
+  // --- Insight: 30% iznad prosjeka ---
+  const avg = getAverageHoursAllWorkers();
+  loadWorkerHistory(workerId, satnica);
+
+  if (avg > 0) {
+    const diffPct = (totalHours - avg) / avg; // npr. 0.30 = 30%
+    if (diffPct >= 0.30) {
+      const pct = Math.round(diffPct * 100);
+      setInsight(`⚠️ Ovaj radnik ima <strong>${pct}%</strong> više sati od prosjeka za izabrani period.`);
+    } else {
+      setInsight("");
+    }
+  } else {
+    setInsight("");
+  }
+
 
   // Fill
   if (wmTitle) wmTitle.textContent = fullName;
@@ -214,22 +266,49 @@ async function loadRadnici() {
 
 async function loadPlan() {
   const mjesec = mjesecEl.value;
-  const period = periodEl.value;
+  const period = Number(periodEl.value);
 
-  const res = await fetch(
-    `${API_PLAN}?mjesec=${encodeURIComponent(mjesec)}&period=${encodeURIComponent(period)}`
-  );
-  const rows = await res.json();
-
-  planMap = new Map();
-  for (const row of rows) {
-    let satiObj = row.sati;
-    if (typeof satiObj === "string") {
-      try { satiObj = JSON.parse(satiObj); } catch { satiObj = {}; }
-    }
-    planMap.set(row.radnik_id, satiObj || {});
+  async function fetchRows(p) {
+    const res = await fetch(
+      `${API_PLAN}?mjesec=${encodeURIComponent(mjesec)}&period=${encodeURIComponent(p)}`
+    );
+    if (!res.ok) throw new Error("Load plan failed");
+    return await res.json();
   }
+
+  function rowsToMap(rows) {
+    const map = new Map();
+    for (const row of rows) {
+      let satiObj = row.sati;
+      if (typeof satiObj === "string") {
+        try { satiObj = JSON.parse(satiObj); } catch { satiObj = {}; }
+      }
+      map.set(Number(row.radnik_id), satiObj || {});
+    }
+    return map;
+  }
+
+  function mergeMaps(a, b) {
+    const out = new Map(a);
+    for (const [rid, objB] of b.entries()) {
+      const objA = out.get(rid) || {};
+      out.set(rid, { ...objA, ...objB });
+    }
+    return out;
+  }
+
+  if (period === 0) {
+    const [rows1, rows2] = await Promise.all([fetchRows(1), fetchRows(2)]);
+    const map1 = rowsToMap(rows1);
+    const map2 = rowsToMap(rows2);
+    planMap = mergeMaps(map1, map2);
+    return;
+  }
+
+  const rows = await fetchRows(period);
+  planMap = rowsToMap(rows);
 }
+
 
 async function savePlan(radnikId, mjesec, period, satiObj) {
   const res = await fetch(API_PLAN, {
@@ -289,7 +368,10 @@ function updateObracunRow(radnikId) {
   if (ukupnoTd) ukupnoTd.textContent = `${ukupno}h`;
   if (plataTd) plataTd.textContent = plata.toFixed(2);
 }
-
+function effectivePeriod(uiPeriod, dayNumber) {
+  if (Number(uiPeriod) !== 0) return Number(uiPeriod);
+  return Number(dayNumber) <= 14 ? 1 : 2;
+}
 async function saveDayIfChanged(inp) {
   const radnikId = Number(inp.dataset.radnik);
   const day = String(inp.dataset.day);
@@ -306,13 +388,14 @@ async function saveDayIfChanged(inp) {
 
   const mjesec = mjesecEl.value;
   const period = Number(periodEl.value);
+  const effective = effectivePeriod(period, Number(day));
 
   const current = planMap.get(radnikId) || {};
   current[day] = value;
   planMap.set(radnikId, current);
 
   try {
-    await savePlan(radnikId, mjesec, period, current);
+    await savePlan(radnikId, mjesec, effective, current);
 
     inp.dataset.prev = String(value);
     updateInputState(inp);
@@ -586,6 +669,194 @@ document.addEventListener("click", (e) => {
   if (!id) return;
   openWorkerCard(id);
 });
+// modal satnica 
+function setRateEditMode(isEditing) {
+  if (!wmRateEdit || !wmEditRateBtn) return;
+  wmRateEdit.hidden = !isEditing;
+  wmEditRateBtn.hidden = isEditing;
+
+  if (isEditing && wmRateInput) {
+    wmRateInput.focus();
+    wmRateInput.select();
+  }
+}
+if (wmEditRateBtn) {
+  wmEditRateBtn.addEventListener("click", () => {
+    if (modalWorkerId == null) return;
+
+    const r = radnici.find(x => Number(x.id) === Number(modalWorkerId));
+    const currentRate = Number(r?.satnica ?? 0);
+
+    if (wmRateInput) wmRateInput.value = String(currentRate);
+    setRateEditMode(true);
+  });
+}
+// prosjek sati svih radnika u modalu
+function getTotalHoursForWorker(radnikId){
+  const sati = planMap.get(Number(radnikId)) || {};
+  return currentDays.reduce((sum, d) => sum + Number(sati[String(d)] ?? 0), 0);
+}
+//istorija radnika u modalu
+function getLastMonths(count){
+  const out = [];
+  const now = new Date();
+
+  for(let i=0;i<count;i++){
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    out.push(`${y}-${m}`);
+  }
+  return out;
+}
+async function fetchWorkerMonthTotal(radnikId, yyyyMm){
+  async function fetchPeriod(p){
+    const res = await fetch(`${API_PLAN}?mjesec=${yyyyMm}&period=${p}`);
+    if(!res.ok) return [];
+    return await res.json();
+  }
+
+  const [rows1, rows2] = await Promise.all([fetchPeriod(1), fetchPeriod(2)]);
+  const rows = [...rows1, ...rows2];
+
+  const row = rows.find(r => Number(r.radnik_id) === Number(radnikId));
+  if(!row) return 0;
+
+  let satiObj = row.sati;
+  if(typeof satiObj === "string"){
+    try{ satiObj = JSON.parse(satiObj); } catch { satiObj = {}; }
+  }
+
+  return Object.values(satiObj || {}).reduce((a,b)=>a+Number(b||0),0);
+}
+async function loadWorkerHistory(radnikId, satnica){
+  if(!wmHistoryBody) return;
+  wmHistoryBody.innerHTML = `<tr><td colspan="3" style="opacity:.7">Učitavam…</td></tr>`;
+
+  const months = getLastMonths(6); // zadnjih 6 mjeseci
+
+  const rowsHtml = [];
+
+  for(const m of months){
+    const hours = await fetchWorkerMonthTotal(radnikId, m);
+    const amount = hours * Number(satnica || 0);
+
+    rowsHtml.push(`
+      <tr>
+        <td>${m}</td>
+        <td>${hours.toFixed(1)}</td>
+        <td>${amount.toFixed(2)}</td>
+      </tr>
+    `);
+  }
+
+  wmHistoryBody.innerHTML = rowsHtml.join("");
+}
+
+function getAverageHoursAllWorkers(){
+  if (!radnici.length) return 0;
+  const totals = radnici.map(r => getTotalHoursForWorker(r.id));
+  const sum = totals.reduce((a,b) => a + b, 0);
+  return sum / totals.length;
+}
+//STAMPANJE
+const btnPrintPlan = document.getElementById("btnPrintPlan");
+const printTitleEl = document.getElementById("printTitle");
+
+function buildPrintTitle() {
+  const mjesec = mjesecEl.value; // YYYY-MM
+  const period = Number(periodEl.value);
+
+  const [y, m] = mjesec.split("-").map(Number);
+  const lastDay = new Date(y, m, 0).getDate();
+
+  let label = "";
+  if (period === 0) label = `01 - ${lastDay}`;
+  else if (period === 1) label = "01 - 14";
+  else label = `15 - ${lastDay}`;
+
+  return `Evidencija radnih sati — ${mjesec} (${label})`;
+}
+
+if (btnPrintPlan) {
+  btnPrintPlan.addEventListener("click", () => {
+    if (printTitleEl) printTitleEl.textContent = buildPrintTitle();
+    window.print();
+  });
+}
+
+function setInsight(text){
+  if (!wmInsight) return;
+  if (!text){
+    wmInsight.hidden = true;
+    wmInsight.textContent = "";
+    return;
+  }
+  wmInsight.hidden = false;
+  wmInsight.innerHTML = text;
+}
+
+async function saveRateFromModal() {
+  if (modalWorkerId == null) return;
+
+  const newRate = Number(wmRateInput?.value ?? NaN);
+  if (!Number.isFinite(newRate) || newRate < 0) {
+    showNotification("Unesi ispravnu satnicu", "error");
+    return;
+  }
+
+  try {
+    // koristi tvoj postojeći API poziv
+    await saveSatnica(modalWorkerId, newRate); // :contentReference[oaicite:2]{index=2}
+
+    // 1) update local state
+    const r = radnici.find(x => Number(x.id) === Number(modalWorkerId));
+    if (r) r.satnica = newRate;
+
+    // 2) update obračun input odmah (bez refreshAll)
+    const rateInp = obracunBodyEl.querySelector(`input.rate-input[data-radnik="${modalWorkerId}"]`);
+    if (rateInp) {
+      rateInp.value = String(newRate);
+      rateInp.dataset.prev = String(newRate);
+      updateInputState(rateInp); // već imaš ovu funkciju :contentReference[oaicite:3]{index=3}
+    }
+
+    // 3) update obračun row (ukupno/plata)
+    updateObracunRow(modalWorkerId); // :contentReference[oaicite:4]{index=4}
+
+    // 4) update modal prikaz
+    if (wmRate) wmRate.textContent = `${newRate.toFixed(2)}/h`;
+
+    const newTotalPay = modalTotalHours * newRate;
+    if (wmTotalPay) wmTotalPay.textContent = newTotalPay.toFixed(2);
+
+    showNotification("Satnica sačuvana!", "success");
+    setRateEditMode(false);
+  } catch (err) {
+    console.error(err);
+    showNotification("Greška pri čuvanju satnice", "error");
+  }
+}
+
+if (wmRateSaveBtn) wmRateSaveBtn.addEventListener("click", saveRateFromModal);
+
+if (wmRateCancelBtn) {
+  wmRateCancelBtn.addEventListener("click", () => setRateEditMode(false));
+}
+
+// Enter = save, Esc = cancel dok je fokus na inputu
+if (wmRateInput) {
+  wmRateInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      saveRateFromModal();
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setRateEditMode(false);
+    }
+  });
+}
 
 // init
 refreshAll();
